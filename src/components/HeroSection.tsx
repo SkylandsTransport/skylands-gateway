@@ -31,9 +31,10 @@ const HeroSection = () => {
     
     // Format the professional message
     const message = `Hello Skylands Transport, I would like a diesel quote. Name: ${userName.trim()}, Volume: ${dieselLiters.trim()}L, Delivery Info: ${deliveryMethod.trim()}`;
+    const encodedMessage = encodeURIComponent(message);
 
-    // Direct location assignment is often more reliable than window.open for bypassing blockers
-    window.location.href = `https://wa.me/27686347810?text=${encodeURIComponent(message)}`;
+    // Using window.top.location.href to bypass ERR_BLOCKED_BY_RESPONSE
+    (window.top ?? window).location.href = `https://wa.me/27686347810?text=${encodedMessage}`;
   };
 
   const handleTransportQuote = (e: React.FormEvent) => {
@@ -49,8 +50,10 @@ const HeroSection = () => {
     
     // Format the professional message
     const message = `Hello Skylands Transport, I need a logistics quote. Name: ${userName.trim()}, From: ${pickupLocation.trim()}, To: ${dropoffLocation.trim()}, Weight: ${loadWeight.trim()}`;
+    const encodedMessage = encodeURIComponent(message);
 
-    window.location.href = `https://wa.me/27686347810?text=${encodeURIComponent(message)}`;
+    // Using window.top.location.href to bypass ERR_BLOCKED_BY_RESPONSE
+    (window.top ?? window).location.href = `https://wa.me/27686347810?text=${encodedMessage}`;
   };
 
   return (
