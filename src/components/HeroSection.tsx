@@ -5,13 +5,13 @@ import heroTruck from "@/assets/hero-truck.jpg";
 
 const HeroSection = () => {
   // Diesel Quote Form State
-  const [dieselName, setDieselName] = useState("");
+  const [userName, setUserName] = useState("");
   const [dieselLiters, setDieselLiters] = useState("");
-  const [deliveryRequirements, setDeliveryRequirements] = useState("");
+  const [deliveryMethod, setDeliveryMethod] = useState("");
   const [dieselError, setDieselError] = useState("");
 
   // Transport Quote Form State
-  const [transportName, setTransportName] = useState("");
+  const [transportUserName, setTransportUserName] = useState("");
   const [pickupLocation, setPickupLocation] = useState("");
   const [dropoffLocation, setDropoffLocation] = useState("");
   const [loadWeight, setLoadWeight] = useState("");
@@ -21,7 +21,7 @@ const HeroSection = () => {
     e.preventDefault();
     
     // Validation
-    if (!dieselName.trim() || !dieselLiters.trim() || !deliveryRequirements.trim()) {
+    if (!userName.trim() || !dieselLiters.trim() || !deliveryMethod.trim()) {
       setDieselError("Please fill in all details");
       return;
     }
@@ -29,20 +29,16 @@ const HeroSection = () => {
     setDieselError("");
     
     // Format the professional message
-    const message = `Hello Skylands Transport, I would like a diesel quote. Name: ${dieselName.trim()}, Volume: ${dieselLiters.trim()}L, Delivery Info: ${deliveryRequirements.trim()}.`;
-    
-    // Encode for URL
-    const encodedMessage = encodeURIComponent(message);
-    
-    // Open WhatsApp
-    window.open(`https://wa.me/27686347810?text=${encodedMessage}`, '_blank');
+    const message = `Hello Skylands Transport, I would like a diesel quote. Name: ${userName.trim()}, Volume: ${dieselLiters.trim()}L, Delivery Info: ${deliveryMethod.trim()}`;
+
+    window.open(`https://wa.me/27686347810?text=${encodeURIComponent(message)}`, "_blank");
   };
 
   const handleTransportQuote = (e: React.FormEvent) => {
     e.preventDefault();
     
     // Validation
-    if (!transportName.trim() || !pickupLocation.trim() || !dropoffLocation.trim() || !loadWeight.trim()) {
+    if (!transportUserName.trim() || !pickupLocation.trim() || !dropoffLocation.trim() || !loadWeight.trim()) {
       setTransportError("Please fill in all details");
       return;
     }
@@ -50,13 +46,9 @@ const HeroSection = () => {
     setTransportError("");
     
     // Format the professional message
-    const message = `Hello Skylands Transport, I need a logistics quote. Name: ${transportName.trim()}, From: ${pickupLocation.trim()}, To: ${dropoffLocation.trim()}, Weight: ${loadWeight.trim()}.`;
-    
-    // Encode for URL
-    const encodedMessage = encodeURIComponent(message);
-    
-    // Open WhatsApp
-    window.open(`https://wa.me/27686347810?text=${encodedMessage}`, '_blank');
+    const message = `Hello Skylands Transport, I need a logistics quote. Name: ${transportUserName.trim()}, From: ${pickupLocation.trim()}, To: ${dropoffLocation.trim()}, Weight: ${loadWeight.trim()}`;
+
+    window.open(`https://wa.me/27686347810?text=${encodeURIComponent(message)}`, "_blank");
   };
 
   return (
@@ -96,13 +88,13 @@ const HeroSection = () => {
               <form onSubmit={handleDieselQuote} className="space-y-4">
                 <div>
                   <label className="block text-white/50 text-sm mb-2 font-medium">
-                    Your Name
+                    Full Name
                   </label>
                   <input
                     type="text"
-                    value={dieselName}
+                    value={userName}
                     onChange={(e) => {
-                      setDieselName(e.target.value);
+                      setUserName(e.target.value);
                       setDieselError("");
                     }}
                     placeholder="Enter your name"
@@ -128,17 +120,17 @@ const HeroSection = () => {
 
                 <div>
                   <label className="block text-white/50 text-sm mb-2 font-medium">
-                    Delivery Requirements
+                    Delivery Method
                   </label>
-                  <textarea
-                    value={deliveryRequirements}
+                  <input
+                    type="text"
+                    value={deliveryMethod}
                     onChange={(e) => {
-                      setDeliveryRequirements(e.target.value);
+                      setDeliveryMethod(e.target.value);
                       setDieselError("");
                     }}
-                    placeholder="How would you like it delivered? (e.g., On-site delivery, Depot pickup, Scheduled refueling)"
-                    rows={3}
-                    className="input-premium text-lg resize-none"
+                    placeholder="How would you like it delivered?"
+                    className="input-premium text-lg"
                   />
                 </div>
 
@@ -208,9 +200,9 @@ const HeroSection = () => {
                   </label>
                   <input
                     type="text"
-                    value={transportName}
+                    value={transportUserName}
                     onChange={(e) => {
-                      setTransportName(e.target.value);
+                      setTransportUserName(e.target.value);
                       setTransportError("");
                     }}
                     placeholder="Enter your name"
