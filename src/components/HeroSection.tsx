@@ -4,14 +4,15 @@ import heroTanker from "@/assets/hero-tanker.jpg";
 import heroTruck from "@/assets/hero-truck.jpg";
 
 const HeroSection = () => {
-  // Diesel Quote Form State
+  // Shared Name (used by both quote forms)
   const [userName, setUserName] = useState("");
+
+  // Diesel Quote Form State
   const [dieselLiters, setDieselLiters] = useState("");
   const [deliveryMethod, setDeliveryMethod] = useState("");
   const [dieselError, setDieselError] = useState("");
 
   // Transport Quote Form State
-  const [transportUserName, setTransportUserName] = useState("");
   const [pickupLocation, setPickupLocation] = useState("");
   const [dropoffLocation, setDropoffLocation] = useState("");
   const [loadWeight, setLoadWeight] = useState("");
@@ -31,14 +32,15 @@ const HeroSection = () => {
     // Format the professional message
     const message = `Hello Skylands Transport, I would like a diesel quote. Name: ${userName.trim()}, Volume: ${dieselLiters.trim()}L, Delivery Info: ${deliveryMethod.trim()}`;
 
-    window.open(`https://wa.me/27686347810?text=${encodeURIComponent(message)}`, "_blank");
+    // Direct location assignment is often more reliable than window.open for bypassing blockers
+    window.location.href = `https://wa.me/27686347810?text=${encodeURIComponent(message)}`;
   };
 
   const handleTransportQuote = (e: React.FormEvent) => {
     e.preventDefault();
     
     // Validation
-    if (!transportUserName.trim() || !pickupLocation.trim() || !dropoffLocation.trim() || !loadWeight.trim()) {
+    if (!userName.trim() || !pickupLocation.trim() || !dropoffLocation.trim() || !loadWeight.trim()) {
       setTransportError("Please fill in all details");
       return;
     }
@@ -46,9 +48,9 @@ const HeroSection = () => {
     setTransportError("");
     
     // Format the professional message
-    const message = `Hello Skylands Transport, I need a logistics quote. Name: ${transportUserName.trim()}, From: ${pickupLocation.trim()}, To: ${dropoffLocation.trim()}, Weight: ${loadWeight.trim()}`;
+    const message = `Hello Skylands Transport, I need a logistics quote. Name: ${userName.trim()}, From: ${pickupLocation.trim()}, To: ${dropoffLocation.trim()}, Weight: ${loadWeight.trim()}`;
 
-    window.open(`https://wa.me/27686347810?text=${encodeURIComponent(message)}`, "_blank");
+    window.location.href = `https://wa.me/27686347810?text=${encodeURIComponent(message)}`;
   };
 
   return (
@@ -88,7 +90,7 @@ const HeroSection = () => {
               <form onSubmit={handleDieselQuote} className="space-y-4">
                 <div>
                   <label className="block text-white/50 text-sm mb-2 font-medium">
-                    Full Name
+                    Your Name
                   </label>
                   <input
                     type="text"
@@ -196,13 +198,13 @@ const HeroSection = () => {
               <form onSubmit={handleTransportQuote} className="space-y-4">
                 <div>
                   <label className="block text-white/50 text-sm mb-2 font-medium">
-                    Full Name
+                    Your Name
                   </label>
                   <input
                     type="text"
-                    value={transportUserName}
+                    value={userName}
                     onChange={(e) => {
-                      setTransportUserName(e.target.value);
+                      setUserName(e.target.value);
                       setTransportError("");
                     }}
                     placeholder="Enter your name"
