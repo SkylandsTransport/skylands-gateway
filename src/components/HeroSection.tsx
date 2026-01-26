@@ -1,34 +1,49 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { Fuel, Truck, ArrowRight } from "lucide-react";
 import heroTanker from "@/assets/hero-tanker.jpg";
 import heroTruck from "@/assets/hero-truck.jpg";
 
-const HeroSection = () => {
-  // Shared Name (used by both quote forms)
-  const [userName, setUserName] = useState("");
+const PHONE_NUMBER = "27686347810";
 
+const HeroSection = () => {
   // Diesel Quote Form State
+  const [userName, setUserName] = useState("");
   const [dieselLiters, setDieselLiters] = useState("");
   const [deliveryMethod, setDeliveryMethod] = useState("");
   const [dieselError, setDieselError] = useState("");
 
-  // Transport Quote Form State
+  // Transport Quote Form State (separate userName for transport)
+  const [userNameTransport, setUserNameTransport] = useState("");
   const [pickupLocation, setPickupLocation] = useState("");
   const [dropoffLocation, setDropoffLocation] = useState("");
   const [loadWeight, setLoadWeight] = useState("");
   const [transportError, setTransportError] = useState("");
 
-  const phoneNumber = "+27686347810";
+  // Helper functions to generate WhatsApp URLs
+  const getDieselUrl = () => {
+    const message = `Hello Skylands Transport, I need a diesel quote. Name: ${userName}, Liters: ${dieselLiters}, Method: ${deliveryMethod}`;
+    return `https://wa.me/${PHONE_NUMBER}?text=${encodeURIComponent(message)}`;
+  };
 
-  const dieselUrl = useMemo(() => {
-    const message = `Hello Skylands Transport, I would like a diesel quote. Name: ${userName}, Volume: ${dieselLiters}L, Delivery Info: ${deliveryMethod}`;
-    return `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
-  }, [deliveryMethod, dieselLiters, phoneNumber, userName]);
+  const getTransportUrl = () => {
+    const message = `Hello Skylands Transport, I need a logistics quote. Name: ${userNameTransport}, From: ${pickupLocation}, To: ${dropoffLocation}, Weight: ${loadWeight}`;
+    return `https://wa.me/${PHONE_NUMBER}?text=${encodeURIComponent(message)}`;
+  };
 
-  const transportUrl = useMemo(() => {
-    const message = `Hello Skylands Transport, I need a logistics quote. Name: ${userName}, From: ${pickupLocation}, To: ${dropoffLocation}, Weight: ${loadWeight}`;
-    return `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
-  }, [dropoffLocation, loadWeight, phoneNumber, pickupLocation, userName]);
+  // Validation handlers (prevent navigation if fields are empty)
+  const handleDieselClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (!userName.trim() || !dieselLiters.trim() || !deliveryMethod.trim()) {
+      e.preventDefault();
+      setDieselError("Please fill in all details");
+    }
+  };
+
+  const handleTransportClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (!userNameTransport.trim() || !pickupLocation.trim() || !dropoffLocation.trim() || !loadWeight.trim()) {
+      e.preventDefault();
+      setTransportError("Please fill in all details");
+    }
+  };
 
   return (
     <section id="services" className="min-h-screen pt-20">
@@ -63,11 +78,11 @@ const HeroSection = () => {
                 Reliable diesel supply for your fleet. Skylands Transport ensures your operations never stop.
               </p>
 
-              {/* Quick Quote */}
+              {/* Quick Quote Inputs */}
               <div className="space-y-4">
                 <div>
                   <label className="block text-white/50 text-sm mb-2 font-medium">
-                    Your Name
+                    Full Name
                   </label>
                   <input
                     type="text"
@@ -108,7 +123,7 @@ const HeroSection = () => {
                       setDeliveryMethod(e.target.value);
                       setDieselError("");
                     }}
-                    placeholder="How would you like it delivered?"
+                    placeholder="e.g. On-site delivery, Depot pickup"
                     className="input-premium text-lg"
                   />
                 </div>
@@ -119,16 +134,12 @@ const HeroSection = () => {
                   </p>
                 )}
 
+                {/* Direct WhatsApp Link */}
                 <a
-                  href={dieselUrl}
+                  href={getDieselUrl()}
                   target="_blank"
                   rel="noopener noreferrer"
-                  onClick={(e) => {
-                    if (!userName.trim() || !dieselLiters.trim() || !deliveryMethod.trim()) {
-                      e.preventDefault();
-                      setDieselError("Please fill in all details");
-                    }
-                  }}
+                  onClick={handleDieselClick}
                   className="btn-gold w-full flex items-center justify-center gap-3 text-lg"
                 >
                   Get Fuel Quote
@@ -179,17 +190,17 @@ const HeroSection = () => {
                 End-to-end logistics with Skylands' nationwide network. Your cargo, our commitment.
               </p>
 
-              {/* Quick Quote */}
+              {/* Quick Quote Inputs */}
               <div className="space-y-4">
                 <div>
                   <label className="block text-white/50 text-sm mb-2 font-medium">
-                    Your Name
+                    Full Name
                   </label>
                   <input
                     type="text"
-                    value={userName}
+                    value={userNameTransport}
                     onChange={(e) => {
-                      setUserName(e.target.value);
+                      setUserNameTransport(e.target.value);
                       setTransportError("");
                     }}
                     placeholder="Enter your name"
@@ -240,7 +251,7 @@ const HeroSection = () => {
                       setLoadWeight(e.target.value);
                       setTransportError("");
                     }}
-                    placeholder="e.g., 10 Tons"
+                    placeholder="e.g. 10 Tons"
                     className="input-premium text-lg"
                   />
                 </div>
@@ -251,16 +262,12 @@ const HeroSection = () => {
                   </p>
                 )}
 
+                {/* Direct WhatsApp Link */}
                 <a
-                  href={transportUrl}
+                  href={getTransportUrl()}
                   target="_blank"
                   rel="noopener noreferrer"
-                  onClick={(e) => {
-                    if (!userName.trim() || !pickupLocation.trim() || !dropoffLocation.trim() || !loadWeight.trim()) {
-                      e.preventDefault();
-                      setTransportError("Please fill in all details");
-                    }
-                  }}
+                  onClick={handleTransportClick}
                   className="btn-navy w-full flex items-center justify-center gap-3 text-lg"
                 >
                   Request Transport Quote
