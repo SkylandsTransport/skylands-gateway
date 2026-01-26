@@ -18,7 +18,7 @@ const HeroSection = () => {
   const [loadWeight, setLoadWeight] = useState("");
   const [transportError, setTransportError] = useState("");
 
-  const phoneNumber = "27686347810";
+  const phoneNumber = "+27686347810";
 
   const dieselUrl = useMemo(() => {
     const message = `Hello Skylands Transport, I would like a diesel quote. Name: ${userName}, Volume: ${dieselLiters}L, Delivery Info: ${deliveryMethod}`;
