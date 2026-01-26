@@ -18,8 +18,22 @@ const HeroSection = () => {
   const [loadWeight, setLoadWeight] = useState("");
   const [transportError, setTransportError] = useState("");
 
+  const navigateToWhatsApp = (url: string) => {
+    // In embedded previews (iframes) WhatsApp responses can be blocked (COOP/response blocking).
+    // Triggering a user-initiated new-tab navigation with noopener is typically most reliable.
+    const a = document.createElement("a");
+    a.href = url;
+    a.target = "_blank";
+    a.rel = "noopener noreferrer";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  };
+
   const handleDieselQuote = (e: React.FormEvent) => {
     e.preventDefault();
+
+    const phoneNumber = "27686347810";
     
     // Validation
     if (!userName.trim() || !dieselLiters.trim() || !deliveryMethod.trim()) {
@@ -31,14 +45,15 @@ const HeroSection = () => {
     
     // Format the professional message
     const message = `Hello Skylands Transport, I would like a diesel quote. Name: ${userName.trim()}, Volume: ${dieselLiters.trim()}L, Delivery Info: ${deliveryMethod.trim()}`;
-    const encodedMessage = encodeURIComponent(message);
+    const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
 
-    // Using window.top.location.href to bypass ERR_BLOCKED_BY_RESPONSE
-    (window.top ?? window).location.href = `https://wa.me/27686347810?text=${encodedMessage}`;
+    navigateToWhatsApp(url);
   };
 
   const handleTransportQuote = (e: React.FormEvent) => {
     e.preventDefault();
+
+    const phoneNumber = "27686347810";
     
     // Validation
     if (!userName.trim() || !pickupLocation.trim() || !dropoffLocation.trim() || !loadWeight.trim()) {
@@ -50,10 +65,9 @@ const HeroSection = () => {
     
     // Format the professional message
     const message = `Hello Skylands Transport, I need a logistics quote. Name: ${userName.trim()}, From: ${pickupLocation.trim()}, To: ${dropoffLocation.trim()}, Weight: ${loadWeight.trim()}`;
-    const encodedMessage = encodeURIComponent(message);
+    const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
 
-    // Using window.top.location.href to bypass ERR_BLOCKED_BY_RESPONSE
-    (window.top ?? window).location.href = `https://wa.me/27686347810?text=${encodedMessage}`;
+    navigateToWhatsApp(url);
   };
 
   return (
