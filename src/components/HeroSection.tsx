@@ -4,13 +4,35 @@ import heroTanker from "@/assets/hero-tanker.jpg";
 import heroTruck from "@/assets/hero-truck.jpg";
 
 const HeroSection = () => {
+  // Diesel Quote Form State
+  const [dieselName, setDieselName] = useState("");
   const [dieselLiters, setDieselLiters] = useState("");
+  const [deliveryMethod, setDeliveryMethod] = useState("");
+  const [dieselError, setDieselError] = useState("");
+
+  // Transport Quote Form State
   const [pickupLocation, setPickupLocation] = useState("");
   const [dropoffLocation, setDropoffLocation] = useState("");
 
   const handleDieselQuote = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Diesel quote requested:", dieselLiters);
+    
+    // Validation
+    if (!dieselName.trim() || !dieselLiters.trim() || !deliveryMethod.trim()) {
+      setDieselError("Please fill in all details");
+      return;
+    }
+    
+    setDieselError("");
+    
+    // Format the professional message
+    const message = `Hello Skylands Transport, I would like a diesel quote. Name: ${dieselName.trim()}, Amount: ${dieselLiters.trim()}L, Delivery Method: ${deliveryMethod.trim()}.`;
+    
+    // Encode for URL
+    const encodedMessage = encodeURIComponent(message);
+    
+    // Open WhatsApp in new window
+    window.open(`https://wa.me/27686347810?text=${encodedMessage}`, '_blank');
   };
 
   const handleTransportQuote = (e: React.FormEvent) => {
@@ -55,16 +77,61 @@ const HeroSection = () => {
               <form onSubmit={handleDieselQuote} className="space-y-4">
                 <div>
                   <label className="block text-white/50 text-sm mb-2 font-medium">
-                    Volume Required
+                    Your Name
+                  </label>
+                  <input
+                    type="text"
+                    value={dieselName}
+                    onChange={(e) => {
+                      setDieselName(e.target.value);
+                      setDieselError("");
+                    }}
+                    placeholder="Enter your name"
+                    className="input-premium text-lg"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-white/50 text-sm mb-2 font-medium">
+                    Liters Required
                   </label>
                   <input
                     type="text"
                     value={dieselLiters}
-                    onChange={(e) => setDieselLiters(e.target.value)}
-                    placeholder="Enter liters of diesel required"
+                    onChange={(e) => {
+                      setDieselLiters(e.target.value);
+                      setDieselError("");
+                    }}
+                    placeholder="e.g. 500"
                     className="input-premium text-lg"
                   />
                 </div>
+
+                <div>
+                  <label className="block text-white/50 text-sm mb-2 font-medium">
+                    Delivery Method
+                  </label>
+                  <select
+                    value={deliveryMethod}
+                    onChange={(e) => {
+                      setDeliveryMethod(e.target.value);
+                      setDieselError("");
+                    }}
+                    className="input-premium text-lg cursor-pointer"
+                  >
+                    <option value="" className="bg-navy-dark text-white/40">Select delivery method</option>
+                    <option value="On-site Delivery" className="bg-navy-dark text-white">On-site Delivery</option>
+                    <option value="Depot Pickup" className="bg-navy-dark text-white">Depot Pickup</option>
+                    <option value="Scheduled Refueling" className="bg-navy-dark text-white">Scheduled Refueling</option>
+                    <option value="Emergency Supply" className="bg-navy-dark text-white">Emergency Supply</option>
+                  </select>
+                </div>
+
+                {dieselError && (
+                  <p className="text-gold text-sm font-medium animate-fade-up">
+                    {dieselError}
+                  </p>
+                )}
 
                 <button
                   type="submit"
