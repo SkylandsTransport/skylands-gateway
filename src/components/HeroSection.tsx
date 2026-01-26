@@ -34,8 +34,8 @@ const HeroSection = () => {
     // Encode for URL
     const encodedMessage = encodeURIComponent(message);
     
-    // Open WhatsApp using official API URL
-    window.open(`https://api.whatsapp.com/send?phone=27686347810&text=${encodedMessage}`, '_blank');
+    // Open WhatsApp
+    window.open(`https://wa.me/27686347810?text=${encodedMessage}`, '_blank');
   };
 
   const handleTransportQuote = (e: React.FormEvent) => {
@@ -55,8 +55,8 @@ const HeroSection = () => {
     // Encode for URL
     const encodedMessage = encodeURIComponent(message);
     
-    // Open WhatsApp using official API URL
-    window.open(`https://api.whatsapp.com/send?phone=27686347810&text=${encodedMessage}`, '_blank');
+    // Open WhatsApp
+    window.open(`https://wa.me/27686347810?text=${encodedMessage}`, '_blank');
   };
 
   return (
