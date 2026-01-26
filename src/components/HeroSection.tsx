@@ -7,18 +7,21 @@ const HeroSection = () => {
   // Diesel Quote Form State
   const [dieselName, setDieselName] = useState("");
   const [dieselLiters, setDieselLiters] = useState("");
-  const [deliveryMethod, setDeliveryMethod] = useState("");
+  const [deliveryRequirements, setDeliveryRequirements] = useState("");
   const [dieselError, setDieselError] = useState("");
 
   // Transport Quote Form State
+  const [transportName, setTransportName] = useState("");
   const [pickupLocation, setPickupLocation] = useState("");
   const [dropoffLocation, setDropoffLocation] = useState("");
+  const [loadWeight, setLoadWeight] = useState("");
+  const [transportError, setTransportError] = useState("");
 
   const handleDieselQuote = (e: React.FormEvent) => {
     e.preventDefault();
     
     // Validation
-    if (!dieselName.trim() || !dieselLiters.trim() || !deliveryMethod.trim()) {
+    if (!dieselName.trim() || !dieselLiters.trim() || !deliveryRequirements.trim()) {
       setDieselError("Please fill in all details");
       return;
     }
@@ -26,18 +29,34 @@ const HeroSection = () => {
     setDieselError("");
     
     // Format the professional message
-    const message = `Hello Skylands Transport, I would like a diesel quote. Name: ${dieselName.trim()}, Amount: ${dieselLiters.trim()}L, Delivery Method: ${deliveryMethod.trim()}.`;
+    const message = `Hello Skylands Transport, I would like a diesel quote. Name: ${dieselName.trim()}, Volume: ${dieselLiters.trim()}L, Delivery Info: ${deliveryRequirements.trim()}.`;
     
     // Encode for URL
     const encodedMessage = encodeURIComponent(message);
     
-    // Open WhatsApp in new window
-    window.open(`https://wa.me/27686347810?text=${encodedMessage}`, '_blank');
+    // Open WhatsApp using official API URL
+    window.open(`https://api.whatsapp.com/send?phone=27686347810&text=${encodedMessage}`, '_blank');
   };
 
   const handleTransportQuote = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Transport quote requested:", { pickupLocation, dropoffLocation });
+    
+    // Validation
+    if (!transportName.trim() || !pickupLocation.trim() || !dropoffLocation.trim() || !loadWeight.trim()) {
+      setTransportError("Please fill in all details");
+      return;
+    }
+    
+    setTransportError("");
+    
+    // Format the professional message
+    const message = `Hello Skylands Transport, I need a logistics quote. Name: ${transportName.trim()}, From: ${pickupLocation.trim()}, To: ${dropoffLocation.trim()}, Weight: ${loadWeight.trim()}.`;
+    
+    // Encode for URL
+    const encodedMessage = encodeURIComponent(message);
+    
+    // Open WhatsApp using official API URL
+    window.open(`https://api.whatsapp.com/send?phone=27686347810&text=${encodedMessage}`, '_blank');
   };
 
   return (
@@ -109,22 +128,18 @@ const HeroSection = () => {
 
                 <div>
                   <label className="block text-white/50 text-sm mb-2 font-medium">
-                    Delivery Method
+                    Delivery Requirements
                   </label>
-                  <select
-                    value={deliveryMethod}
+                  <textarea
+                    value={deliveryRequirements}
                     onChange={(e) => {
-                      setDeliveryMethod(e.target.value);
+                      setDeliveryRequirements(e.target.value);
                       setDieselError("");
                     }}
-                    className="input-premium text-lg cursor-pointer"
-                  >
-                    <option value="" className="bg-navy-dark text-white/40">Select delivery method</option>
-                    <option value="On-site Delivery" className="bg-navy-dark text-white">On-site Delivery</option>
-                    <option value="Depot Pickup" className="bg-navy-dark text-white">Depot Pickup</option>
-                    <option value="Scheduled Refueling" className="bg-navy-dark text-white">Scheduled Refueling</option>
-                    <option value="Emergency Supply" className="bg-navy-dark text-white">Emergency Supply</option>
-                  </select>
+                    placeholder="How would you like it delivered? (e.g., On-site delivery, Depot pickup, Scheduled refueling)"
+                    rows={3}
+                    className="input-premium text-lg resize-none"
+                  />
                 </div>
 
                 {dieselError && (
@@ -189,12 +204,31 @@ const HeroSection = () => {
               <form onSubmit={handleTransportQuote} className="space-y-4">
                 <div>
                   <label className="block text-white/50 text-sm mb-2 font-medium">
+                    Full Name
+                  </label>
+                  <input
+                    type="text"
+                    value={transportName}
+                    onChange={(e) => {
+                      setTransportName(e.target.value);
+                      setTransportError("");
+                    }}
+                    placeholder="Enter your name"
+                    className="input-premium text-lg"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-white/50 text-sm mb-2 font-medium">
                     Pickup Location
                   </label>
                   <input
                     type="text"
                     value={pickupLocation}
-                    onChange={(e) => setPickupLocation(e.target.value)}
+                    onChange={(e) => {
+                      setPickupLocation(e.target.value);
+                      setTransportError("");
+                    }}
                     placeholder="Enter pickup address"
                     className="input-premium text-lg"
                   />
@@ -207,11 +241,36 @@ const HeroSection = () => {
                   <input
                     type="text"
                     value={dropoffLocation}
-                    onChange={(e) => setDropoffLocation(e.target.value)}
+                    onChange={(e) => {
+                      setDropoffLocation(e.target.value);
+                      setTransportError("");
+                    }}
                     placeholder="Enter destination address"
                     className="input-premium text-lg"
                   />
                 </div>
+
+                <div>
+                  <label className="block text-white/50 text-sm mb-2 font-medium">
+                    Estimated Load Weight
+                  </label>
+                  <input
+                    type="text"
+                    value={loadWeight}
+                    onChange={(e) => {
+                      setLoadWeight(e.target.value);
+                      setTransportError("");
+                    }}
+                    placeholder="e.g., 10 Tons"
+                    className="input-premium text-lg"
+                  />
+                </div>
+
+                {transportError && (
+                  <p className="text-gold text-sm font-medium animate-fade-up">
+                    {transportError}
+                  </p>
+                )}
 
                 <button
                   type="submit"
