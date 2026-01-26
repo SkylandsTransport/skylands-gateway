@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Fuel, Truck, ArrowRight } from "lucide-react";
 import heroTanker from "@/assets/hero-tanker.jpg";
 import heroTruck from "@/assets/hero-truck.jpg";
@@ -18,57 +18,17 @@ const HeroSection = () => {
   const [loadWeight, setLoadWeight] = useState("");
   const [transportError, setTransportError] = useState("");
 
-  const navigateToWhatsApp = (url: string) => {
-    // In embedded previews (iframes) WhatsApp responses can be blocked (COOP/response blocking).
-    // Triggering a user-initiated new-tab navigation with noopener is typically most reliable.
-    const a = document.createElement("a");
-    a.href = url;
-    a.target = "_blank";
-    a.rel = "noopener noreferrer";
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-  };
+  const phoneNumber = "27686347810";
 
-  const handleDieselQuote = (e: React.FormEvent) => {
-    e.preventDefault();
+  const dieselUrl = useMemo(() => {
+    const message = `Hello Skylands Transport, I would like a diesel quote. Name: ${userName}, Volume: ${dieselLiters}L, Delivery Info: ${deliveryMethod}`;
+    return `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+  }, [deliveryMethod, dieselLiters, phoneNumber, userName]);
 
-    const phoneNumber = "27686347810";
-    
-    // Validation
-    if (!userName.trim() || !dieselLiters.trim() || !deliveryMethod.trim()) {
-      setDieselError("Please fill in all details");
-      return;
-    }
-    
-    setDieselError("");
-    
-    // Format the professional message
-    const message = `Hello Skylands Transport, I would like a diesel quote. Name: ${userName.trim()}, Volume: ${dieselLiters.trim()}L, Delivery Info: ${deliveryMethod.trim()}`;
-    const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
-
-    navigateToWhatsApp(url);
-  };
-
-  const handleTransportQuote = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    const phoneNumber = "27686347810";
-    
-    // Validation
-    if (!userName.trim() || !pickupLocation.trim() || !dropoffLocation.trim() || !loadWeight.trim()) {
-      setTransportError("Please fill in all details");
-      return;
-    }
-    
-    setTransportError("");
-    
-    // Format the professional message
-    const message = `Hello Skylands Transport, I need a logistics quote. Name: ${userName.trim()}, From: ${pickupLocation.trim()}, To: ${dropoffLocation.trim()}, Weight: ${loadWeight.trim()}`;
-    const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
-
-    navigateToWhatsApp(url);
-  };
+  const transportUrl = useMemo(() => {
+    const message = `Hello Skylands Transport, I need a logistics quote. Name: ${userName}, From: ${pickupLocation}, To: ${dropoffLocation}, Weight: ${loadWeight}`;
+    return `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+  }, [dropoffLocation, loadWeight, phoneNumber, pickupLocation, userName]);
 
   return (
     <section id="services" className="min-h-screen pt-20">
@@ -103,8 +63,8 @@ const HeroSection = () => {
                 Reliable diesel supply for your fleet. Skylands Transport ensures your operations never stop.
               </p>
 
-              {/* Quote Form */}
-              <form onSubmit={handleDieselQuote} className="space-y-4">
+              {/* Quick Quote */}
+              <div className="space-y-4">
                 <div>
                   <label className="block text-white/50 text-sm mb-2 font-medium">
                     Your Name
@@ -159,14 +119,22 @@ const HeroSection = () => {
                   </p>
                 )}
 
-                <button
-                  type="submit"
+                <a
+                  href={dieselUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => {
+                    if (!userName.trim() || !dieselLiters.trim() || !deliveryMethod.trim()) {
+                      e.preventDefault();
+                      setDieselError("Please fill in all details");
+                    }
+                  }}
                   className="btn-gold w-full flex items-center justify-center gap-3 text-lg"
                 >
                   Get Fuel Quote
                   <ArrowRight className="w-5 h-5" />
-                </button>
-              </form>
+                </a>
+              </div>
 
               {/* Trust Badge */}
               <div className="mt-8 pt-6 border-t border-white/10">
@@ -211,8 +179,8 @@ const HeroSection = () => {
                 End-to-end logistics with Skylands' nationwide network. Your cargo, our commitment.
               </p>
 
-              {/* Quote Form */}
-              <form onSubmit={handleTransportQuote} className="space-y-4">
+              {/* Quick Quote */}
+              <div className="space-y-4">
                 <div>
                   <label className="block text-white/50 text-sm mb-2 font-medium">
                     Your Name
@@ -283,14 +251,22 @@ const HeroSection = () => {
                   </p>
                 )}
 
-                <button
-                  type="submit"
+                <a
+                  href={transportUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => {
+                    if (!userName.trim() || !pickupLocation.trim() || !dropoffLocation.trim() || !loadWeight.trim()) {
+                      e.preventDefault();
+                      setTransportError("Please fill in all details");
+                    }
+                  }}
                   className="btn-navy w-full flex items-center justify-center gap-3 text-lg"
                 >
                   Request Transport Quote
                   <ArrowRight className="w-5 h-5" />
-                </button>
-              </form>
+                </a>
+              </div>
 
               {/* Trust Badge */}
               <div className="mt-8 pt-6 border-t border-white/10">
