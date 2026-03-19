@@ -172,62 +172,48 @@ const HeroSection = () => {
 
   /* ── MAIN SPLIT-SCREEN VIEW ── */
   return (
-    <section className="min-h-screen pt-20">
-      <div className="grid grid-cols-1 md:grid-cols-2 min-h-[calc(100vh-5rem)]">
-        {/* Diesel Panel */}
+    <section className="min-h-screen pt-20 relative overflow-hidden">
+      {/* Background split */}
+      <div className="absolute inset-0 grid grid-cols-1 md:grid-cols-2">
         <div
-          className="relative overflow-hidden cursor-pointer group"
-          onClick={() => setView("diesel")}
+          className="bg-cover bg-center bg-no-repeat"
+          style={{ backgroundImage: `url(${heroTanker})` }}
         >
-          <div
-            className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-transform duration-700 group-hover:scale-110"
-            style={{ backgroundImage: `url(${heroTanker})` }}
-          >
-            <div className="absolute inset-0 bg-gradient-to-r from-[hsl(var(--navy-dark))]/95 via-[hsl(var(--navy-dark))]/80 to-[hsl(var(--navy-dark))]/60" />
-          </div>
-          <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-primary/5 pointer-events-none" />
-
-          <div className="relative z-10 flex flex-col justify-center items-center h-full p-8 lg:p-16 text-center">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-6">
-              <Fuel className="w-4 h-4 text-primary" />
-              <span className="text-primary text-sm font-medium">Diesel Supply</span>
-            </div>
-            <h2 className="text-4xl lg:text-5xl xl:text-6xl font-bold text-foreground mb-4">Diesel Supply</h2>
-            <p className="text-muted-foreground text-lg mb-8 max-w-md">
-              Order fuel delivery or on-site pumping services.
-            </p>
-            <span className="btn-gold inline-flex items-center gap-3 text-lg">
-              ORDER DIESEL <ArrowRight className="w-5 h-5" />
-            </span>
-          </div>
+          <div className="w-full h-full bg-[hsl(var(--navy-dark))]/90" />
         </div>
-
-        {/* Transport Panel */}
         <div
-          className="relative overflow-hidden cursor-pointer group"
-          onClick={() => setView("transport")}
+          className="bg-cover bg-center bg-no-repeat"
+          style={{ backgroundImage: `url(${heroTruck})` }}
         >
-          <div
-            className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-transform duration-700 group-hover:scale-110"
-            style={{ backgroundImage: `url(${heroTruck})` }}
-          >
-            <div className="absolute inset-0 bg-gradient-to-l from-[hsl(var(--navy-dark))]/95 via-[hsl(var(--navy-dark))]/80 to-[hsl(var(--navy-dark))]/60" />
-          </div>
-          <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-primary/5 pointer-events-none" />
+          <div className="w-full h-full bg-[hsl(var(--navy-dark))]/90" />
+        </div>
+      </div>
 
-          <div className="relative z-10 flex flex-col justify-center items-center h-full p-8 lg:p-16 text-center">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-secondary/50 border border-primary/30 mb-6">
-              <Truck className="w-4 h-4 text-primary" />
-              <span className="text-primary text-sm font-medium">Logistics</span>
-            </div>
-            <h2 className="text-4xl lg:text-5xl xl:text-6xl font-bold text-foreground mb-4">Logistics &amp; Transport</h2>
-            <p className="text-muted-foreground text-lg mb-8 max-w-md">
-              Freight and transportation solutions across the region.
-            </p>
-            <span className="btn-navy inline-flex items-center gap-3 text-lg">
-              BOOK TRANSPORT <ArrowRight className="w-5 h-5" />
-            </span>
-          </div>
+      {/* Content */}
+      <div className="relative z-10 flex flex-col justify-center items-center min-h-[calc(100vh-5rem)] px-4">
+        <h1 className="text-4xl lg:text-5xl xl:text-6xl font-bold text-foreground mb-4 text-center">
+          Skylands Transport
+        </h1>
+        <p className="text-muted-foreground text-lg mb-12 text-center max-w-lg">
+          Premium diesel supply and logistics solutions across the region.
+        </p>
+
+        <div className="flex flex-col sm:flex-row gap-4 justify-center items-stretch w-full max-w-2xl mx-auto px-4">
+          <button
+            onClick={() => setView("diesel")}
+            className="flex-1 flex items-center justify-center gap-3 bg-foreground text-primary-foreground hover:bg-foreground/90 px-8 py-4 rounded-lg font-bold text-lg transition-all transform hover:scale-105 shadow-xl h-16"
+          >
+            <Fuel className="w-6 h-6" />
+            Diesel Deliveries
+          </button>
+
+          <button
+            onClick={() => setView("transport")}
+            className="flex-1 flex items-center justify-center gap-3 bg-primary text-primary-foreground border-2 border-foreground/20 hover:bg-primary/90 px-8 py-4 rounded-lg font-bold text-lg transition-all transform hover:scale-105 shadow-xl h-16"
+          >
+            <Truck className="w-6 h-6" />
+            Logistics & Transport
+          </button>
         </div>
       </div>
     </section>
