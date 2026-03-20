@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -42,7 +42,6 @@ import { toast } from "sonner";
 import heroDiesel from "@/assets/hero-diesel.jpg";
 import { z } from "zod";
 import {
-  ACTIVE_ORDER_STATUSES,
   ADMIN_EMAIL,
   buildManualOrderDetails,
   LIVE_ORDER_FLOW,
@@ -63,7 +62,6 @@ const orderEditSchema = z.object({
   details: z.string().trim().min(3, "Order details are required").max(400, "Details are too long"),
   quantity: z.string().trim().max(80, "Quantity is too long").optional(),
   location: z.string().trim().max(160, "Location is too long").optional(),
-  status: z.string().trim().min(3, "Status is required").max(60, "Status is too long"),
 });
 
 const statusBadgeClass: Record<string, string> = {
@@ -93,6 +91,7 @@ type QuoteRow = {
   location: string;
   status: string;
   created_at: string;
+  delivered_at: string | null;
   user_id: string;
   customer_name: string;
   customer_phone: string;
@@ -149,7 +148,50 @@ const AdminPortal = () => {
   const [manualStatus, setManualStatus] = useState<(typeof REQUEST_STATUSES)[number]>("Order Accepted");
   const [manualNote, setManualNote] = useState("");
   const [creatingOrder, setCreatingOrder] = useState(false);
-  const [orderDrafts, setOrderDrafts] = useState<Record<string, { details: string; quantity: string; location: string; status: string }>>({});
+  const [orderDrafts, setOrderDrafts] = useState<Record<string, { details: string; quantity: string; location: string }>>({});
+
+  const loadPortalData = useCallback(async () => {
+    const [{ data: quotesData }, { data: profilesData }, { data: settingsData }] = await Promise.all([
+      supabase.from("quotes").select("*").order("created_at", { ascending: false }),
+      supabase.from("profiles").select("*"),
+      supabase.from("site_settings").select("key, value"),
+    ]);
+
+    const profileMap: Record<string, ProfileRow> = {};
+    (profilesData || []).forEach((profile) => {
+      profileMap[profile.user_id] = profile as ProfileRow;
+    });
+
+    const enrichedQuotes = ((quotesData as RawQuoteRow[] | null) || []).map((quote) => ({
+      ...quote,
+      quantity: quote.quantity || "",
+      location: quote.location || "",
+      customer_name: profileMap[quote.user_id]?.full_name || "Unknown",
+      customer_phone: profileMap[quote.user_id]?.phone_number || "—",
+      customer_email: profileMap[quote.user_id]?.email || "—",
+    }));
+
+    const settingsMap: Record<string, string> = {};
+    (settingsData || []).forEach((setting: SettingRow) => {
+      settingsMap[setting.key] = setting.value;
+    });
+
+    setQuotes(enrichedQuotes);
+    setOrderDrafts(
+      enrichedQuotes.reduce<Record<string, { details: string; quantity: string; location: string }>>((acc, quote) => {
+        acc[quote.id] = {
+          details: quote.details,
+          quantity: quote.quantity || "",
+          location: quote.location || "",
+        };
+        return acc;
+      }, {})
+    );
+    setProfiles(((profilesData as ProfileRow[] | null) || []).sort((a, b) => (a.full_name || "").localeCompare(b.full_name || "")));
+    setSettings(settingsMap);
+    setAnnouncement(settingsMap.announcement || "");
+    setFetching(false);
+  }, []);
 
   useEffect(() => {
     if (!authLoading && (!user || user.email !== ADMIN_EMAIL)) {
@@ -159,58 +201,27 @@ const AdminPortal = () => {
 
   useEffect(() => {
     if (!user || user.email !== ADMIN_EMAIL) return;
+    loadPortalData();
 
-    const load = async () => {
-      const [{ data: quotesData }, { data: profilesData }, { data: settingsData }] = await Promise.all([
-        supabase.from("quotes").select("*").order("created_at", { ascending: false }),
-        supabase.from("profiles").select("*"),
-        supabase.from("site_settings").select("key, value"),
-      ]);
+    const channel = supabase
+      .channel("admin-master-orders")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "quotes",
+        },
+        () => {
+          loadPortalData();
+        }
+      )
+      .subscribe();
 
-      const profileMap: Record<string, ProfileRow> = {};
-      (profilesData || []).forEach((profile) => {
-        profileMap[profile.user_id] = profile as ProfileRow;
-      });
-
-      const enrichedQuotes = ((quotesData as RawQuoteRow[] | null) || []).map((quote) => ({
-        ...quote,
-        quantity: quote.quantity || "",
-        location: quote.location || "",
-        customer_name: profileMap[quote.user_id]?.full_name || "Unknown",
-        customer_phone: profileMap[quote.user_id]?.phone_number || "—",
-        customer_email: profileMap[quote.user_id]?.email || "—",
-      }));
-
-      const settingsMap: Record<string, string> = {};
-      (settingsData || []).forEach((setting: SettingRow) => {
-        settingsMap[setting.key] = setting.value;
-      });
-
-      setQuotes(enrichedQuotes);
-      setOrderDrafts(
-        enrichedQuotes.reduce<Record<string, { details: string; quantity: string; location: string; status: string }>>((acc, quote) => {
-          acc[quote.id] = {
-            details: quote.details,
-            quantity: quote.quantity || "",
-            location: quote.location || "",
-            status: quote.status,
-          };
-          return acc;
-        }, {})
-      );
-      setProfiles(((profilesData as ProfileRow[] | null) || []).sort((a, b) => (a.full_name || "").localeCompare(b.full_name || "")));
-      setSettings(settingsMap);
-      setAnnouncement(settingsMap.announcement || "");
-      setFetching(false);
+    return () => {
+      supabase.removeChannel(channel);
     };
-
-    load();
-  }, [user]);
-
-  const liveOrders = useMemo(
-    () => quotes.filter((quote) => ACTIVE_ORDER_STATUSES.has(quote.status)),
-    [quotes]
-  );
+  }, [user, loadPortalData]);
 
   const filteredProfiles = useMemo(
     () =>
@@ -248,31 +259,49 @@ const AdminPortal = () => {
         details: changes.details ?? prev[quoteId]?.details ?? "",
         quantity: changes.quantity ?? prev[quoteId]?.quantity ?? "",
         location: changes.location ?? prev[quoteId]?.location ?? "",
-        status: changes.status ?? prev[quoteId]?.status ?? "Inquiry Received",
       },
     }));
   };
 
+  const getWorkflowStatus = (status: string) => normalizeLiveStatus(status);
+
+  const getWorkflowActions = (status: string) => {
+    if (status === "Inquiry Received") {
+      return [];
+    }
+
+    const normalizedStatus = getWorkflowStatus(status);
+    const currentIndex = LIVE_ORDER_FLOW.indexOf(normalizedStatus as (typeof LIVE_ORDER_FLOW)[number]);
+    return currentIndex === -1 ? LIVE_ORDER_FLOW : LIVE_ORDER_FLOW.slice(currentIndex);
+  };
+
   const updateQuoteStatus = async (quoteId: string, newStatus: string) => {
-    const { error } = await supabase.from("quotes").update({ status: newStatus }).eq("id", quoteId);
+    const { data, error } = await supabase
+      .from("quotes")
+      .update({ status: newStatus })
+      .eq("id", quoteId)
+      .select("status, delivered_at")
+      .single();
 
     if (error) {
       toast.error("Failed to update status");
       return;
     }
 
-    syncQuoteLocally(quoteId, { status: newStatus });
+    syncQuoteLocally(quoteId, {
+      status: data?.status || newStatus,
+      delivered_at: data?.delivered_at || null,
+    });
     toast.success(`Status updated to \"${newStatus}\"`);
   };
 
-  const updateOrderDraft = (quoteId: string, field: "details" | "quantity" | "location" | "status", value: string) => {
+  const updateOrderDraft = (quoteId: string, field: "details" | "quantity" | "location", value: string) => {
     setOrderDrafts((prev) => ({
       ...prev,
       [quoteId]: {
         details: prev[quoteId]?.details ?? quotes.find((quote) => quote.id === quoteId)?.details ?? "",
         quantity: prev[quoteId]?.quantity ?? quotes.find((quote) => quote.id === quoteId)?.quantity ?? "",
         location: prev[quoteId]?.location ?? quotes.find((quote) => quote.id === quoteId)?.location ?? "",
-        status: prev[quoteId]?.status ?? quotes.find((quote) => quote.id === quoteId)?.status ?? "Inquiry Received",
         [field]: value,
       },
     }));
@@ -286,7 +315,6 @@ const AdminPortal = () => {
       details: draft.details,
       quantity: draft.quantity,
       location: draft.location,
-      status: draft.status,
     });
 
     if (!parsed.success) {
@@ -300,7 +328,6 @@ const AdminPortal = () => {
         details: parsed.data.details,
         quantity: parsed.data.quantity || null,
         location: parsed.data.location || null,
-        status: parsed.data.status,
       })
       .eq("id", quoteId);
 
@@ -313,7 +340,6 @@ const AdminPortal = () => {
       details: parsed.data.details,
       quantity: parsed.data.quantity || "",
       location: parsed.data.location || "",
-      status: parsed.data.status,
     });
     toast.success("Order updated");
   };
@@ -380,7 +406,6 @@ const AdminPortal = () => {
         details: nextQuote.details,
         quantity: nextQuote.quantity,
         location: nextQuote.location,
-        status: nextQuote.status,
       },
     }));
     setSelectedClientId("");
@@ -480,7 +505,7 @@ const AdminPortal = () => {
             <TabsList className="bg-navy-dark/60 border border-gold/10 backdrop-blur-sm p-1 w-full sm:w-auto">
               <TabsTrigger value="requests" className="data-[state=active]:bg-gold/20 data-[state=active]:text-gold text-white/60 gap-2">
                 <ClipboardList className="w-4 h-4" />
-                <span className="hidden sm:inline">Requests</span>
+                <span className="hidden sm:inline">Master Order Manager</span>
               </TabsTrigger>
               <TabsTrigger value="fleet" className="data-[state=active]:bg-gold/20 data-[state=active]:text-gold text-white/60 gap-2">
                 <Settings className="w-4 h-4" />
@@ -501,119 +526,29 @@ const AdminPortal = () => {
                 <div className="p-4 border-b border-gold/10">
                   <h2 className="text-white font-semibold flex items-center gap-2">
                     <ClipboardList className="w-5 h-5 text-gold" />
-                    Live Orders
+                    Master Order Manager
                   </h2>
-                  <p className="text-white/40 text-sm mt-1">Approved and active orders update here in real time for clients.</p>
+                  <p className="text-white/40 text-sm mt-1">All client and manual orders in one live queue, newest first.</p>
                 </div>
                 <div className="overflow-x-auto">
                   <Table>
                     <TableHeader>
                       <TableRow className="border-gold/10 hover:bg-transparent">
-                          <TableHead className="text-gold/80 font-semibold">Order ID</TableHead>
+                        <TableHead className="text-gold/80 font-semibold">Order ID</TableHead>
                         <TableHead className="text-gold/80 font-semibold">Client</TableHead>
-                        <TableHead className="text-gold/80 font-semibold">Contact</TableHead>
                         <TableHead className="text-gold/80 font-semibold">Service</TableHead>
-                          <TableHead className="text-gold/80 font-semibold">Manifest</TableHead>
-                        <TableHead className="text-gold/80 font-semibold">Current</TableHead>
-                        <TableHead className="text-gold/80 font-semibold">Update</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {liveOrders.length === 0 ? (
-                        <TableRow>
-                          <TableCell colSpan={7} className="text-center text-white/40 py-12">
-                            No approved or accepted orders yet
-                          </TableCell>
-                        </TableRow>
-                      ) : (
-                        liveOrders.map((quote) => (
-                          <TableRow key={quote.id} className="border-gold/5 hover:bg-gold/5">
-                            <TableCell>
-                              <span className="inline-flex rounded-full border border-gold/20 bg-gold/10 px-3 py-1 text-[11px] font-semibold tracking-[0.16em] text-gold">
-                                {quote.order_id}
-                              </span>
-                            </TableCell>
-                            <TableCell>
-                              <div className="space-y-1">
-                                <p className="text-white font-medium">{quote.customer_name}</p>
-                                <p className="text-white/40 text-xs">{quote.customer_email}</p>
-                              </div>
-                            </TableCell>
-                            <TableCell className="text-white/70">{quote.customer_phone}</TableCell>
-                            <TableCell>
-                              <span className="flex items-center gap-1.5 text-white/80">
-                                {quote.service === "Diesel" ? (
-                                  <Fuel className="w-3.5 h-3.5 text-gold" />
-                                ) : (
-                                  <Truck className="w-3.5 h-3.5 text-gold" />
-                                )}
-                                {quote.service}
-                              </span>
-                            </TableCell>
-                            <TableCell className="text-white/60 text-xs max-w-[240px]">
-                              <div className="space-y-1">
-                                <p className="truncate">{quote.details}</p>
-                                <p className="text-white/40 truncate">
-                                  {[quote.quantity, quote.location].filter(Boolean).join(" • ") || "—"}
-                                </p>
-                              </div>
-                            </TableCell>
-                            <TableCell>
-                              <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-medium ${statusBadgeClass[quote.status] || "bg-secondary/50 text-foreground border-border"}`}>
-                                {quote.status}
-                              </span>
-                            </TableCell>
-                            <TableCell>
-                              <div className="flex flex-wrap gap-2">
-                                {LIVE_ORDER_FLOW.map((status) => (
-                                  <button
-                                    key={status}
-                                    type="button"
-                                    onClick={() => updateQuoteStatus(quote.id, status)}
-                                    className={getActionButtonStyle(status, normalizeLiveStatus(quote.status))}
-                                  >
-                                    {status}
-                                  </button>
-                                ))}
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                        ))
-                      )}
-                    </TableBody>
-                  </Table>
-                </div>
-              </div>
-
-              <div className="rounded-xl border border-gold/10 bg-navy-dark/60 backdrop-blur-sm overflow-hidden">
-                <div className="p-4 border-b border-gold/10">
-                  <h2 className="text-white font-semibold flex items-center gap-2">
-                    <ClipboardList className="w-5 h-5 text-gold" />
-                    Master Request Manager
-                  </h2>
-                  <p className="text-white/40 text-sm mt-1">{quotes.length} total requests</p>
-                </div>
-                <div className="overflow-x-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow className="border-gold/10 hover:bg-transparent">
-                          <TableHead className="text-gold/80 font-semibold">Order ID</TableHead>
-                        <TableHead className="text-gold/80 font-semibold">Customer</TableHead>
-                        <TableHead className="text-gold/80 font-semibold">Phone</TableHead>
-                        <TableHead className="text-gold/80 font-semibold">Service</TableHead>
-                          <TableHead className="text-gold/80 font-semibold">Quantity</TableHead>
-                          <TableHead className="text-gold/80 font-semibold">Location</TableHead>
-                          <TableHead className="text-gold/80 font-semibold">Details</TableHead>
-                        <TableHead className="text-gold/80 font-semibold">Date</TableHead>
+                        <TableHead className="text-gold/80 font-semibold">Manifest</TableHead>
+                        <TableHead className="text-gold/80 font-semibold">Created</TableHead>
                         <TableHead className="text-gold/80 font-semibold">Status</TableHead>
-                          <TableHead className="text-gold/80 font-semibold">Save</TableHead>
+                        <TableHead className="text-gold/80 font-semibold">Workflow</TableHead>
+                        <TableHead className="text-gold/80 font-semibold">Save</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {quotes.length === 0 ? (
                         <TableRow>
-                          <TableCell colSpan={9} className="text-center text-white/40 py-12">
-                            No requests yet
+                          <TableCell colSpan={8} className="text-center text-white/40 py-12">
+                            No orders yet
                           </TableCell>
                         </TableRow>
                       ) : (
@@ -624,8 +559,13 @@ const AdminPortal = () => {
                                 {quote.order_id}
                               </span>
                             </TableCell>
-                            <TableCell className="text-white font-medium">{quote.customer_name}</TableCell>
-                            <TableCell className="text-white/70">{quote.customer_phone}</TableCell>
+                            <TableCell>
+                              <div className="space-y-1">
+                                <p className="text-white font-medium">{quote.customer_name}</p>
+                                <p className="text-white/50 text-xs">{quote.customer_phone}</p>
+                                <p className="text-white/40 text-xs">{quote.customer_email}</p>
+                              </div>
+                            </TableCell>
                             <TableCell>
                               <span className="flex items-center gap-1.5 text-white/80">
                                 {quote.service === "Diesel" ? (
@@ -636,45 +576,77 @@ const AdminPortal = () => {
                                 {quote.service}
                               </span>
                             </TableCell>
-                            <TableCell>
-                              <Input
-                                value={orderDrafts[quote.id]?.quantity ?? quote.quantity}
-                                onChange={(e) => updateOrderDraft(quote.id, "quantity", e.target.value)}
-                                placeholder={quote.service === "Diesel" ? "Liters" : "Weight / load"}
-                                className="h-9 min-w-[120px] bg-navy-dark/80 border-gold/20 text-white placeholder:text-white/30"
-                              />
-                            </TableCell>
-                            <TableCell>
-                              <Input
-                                value={orderDrafts[quote.id]?.location ?? quote.location}
-                                onChange={(e) => updateOrderDraft(quote.id, "location", e.target.value)}
-                                placeholder="Delivery location"
-                                className="h-9 min-w-[180px] bg-navy-dark/80 border-gold/20 text-white placeholder:text-white/30"
-                              />
-                            </TableCell>
-                            <TableCell>
-                              <Textarea
-                                value={orderDrafts[quote.id]?.details ?? quote.details}
-                                onChange={(e) => updateOrderDraft(quote.id, "details", e.target.value)}
-                                className="min-h-[68px] min-w-[220px] bg-navy-dark/80 border-gold/20 text-white placeholder:text-white/30"
-                              />
+                            <TableCell className="min-w-[300px]">
+                              <div className="space-y-2">
+                                <Input
+                                  value={orderDrafts[quote.id]?.quantity ?? quote.quantity}
+                                  onChange={(e) => updateOrderDraft(quote.id, "quantity", e.target.value)}
+                                  placeholder={quote.service === "Diesel" ? "Liters" : "Weight / load"}
+                                  className="h-9 bg-navy-dark/80 border-gold/20 text-white placeholder:text-white/30"
+                                />
+                                <Input
+                                  value={orderDrafts[quote.id]?.location ?? quote.location}
+                                  onChange={(e) => updateOrderDraft(quote.id, "location", e.target.value)}
+                                  placeholder="Delivery location"
+                                  className="h-9 bg-navy-dark/80 border-gold/20 text-white placeholder:text-white/30"
+                                />
+                                <Textarea
+                                  value={orderDrafts[quote.id]?.details ?? quote.details}
+                                  onChange={(e) => updateOrderDraft(quote.id, "details", e.target.value)}
+                                  className="min-h-[78px] bg-navy-dark/80 border-gold/20 text-white placeholder:text-white/30"
+                                />
+                              </div>
                             </TableCell>
                             <TableCell className="text-white/50 text-sm whitespace-nowrap">
-                              {new Date(quote.created_at).toLocaleDateString("en-ZA")}
+                              {new Date(quote.created_at).toLocaleString("en-ZA", {
+                                day: "2-digit",
+                                month: "short",
+                                year: "numeric",
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })}
                             </TableCell>
                             <TableCell>
-                              <Select value={orderDrafts[quote.id]?.status ?? quote.status} onValueChange={(value) => updateOrderDraft(quote.id, "status", value)}>
-                                <SelectTrigger className="w-[190px] bg-navy-dark/80 border-gold/20 text-white text-xs h-8">
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent className="bg-navy-dark border-gold/20">
-                                  {REQUEST_STATUSES.map((status) => (
-                                    <SelectItem key={status} value={status} className="text-white/80 focus:bg-gold/20 focus:text-gold">
+                              <div className="space-y-2">
+                                <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-medium ${statusBadgeClass[quote.status] || "bg-secondary/50 text-foreground border-border"}`}>
+                                  {quote.status}
+                                </span>
+                                {quote.delivered_at && quote.status === "Delivered" && (
+                                  <p className="text-xs text-success">
+                                    Completed {new Date(quote.delivered_at).toLocaleString("en-ZA", {
+                                      day: "2-digit",
+                                      month: "short",
+                                      year: "numeric",
+                                      hour: "2-digit",
+                                      minute: "2-digit",
+                                    })}
+                                  </p>
+                                )}
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex min-w-[220px] flex-wrap gap-2">
+                                {quote.status === "Inquiry Received" ? (
+                                  <button
+                                    type="button"
+                                    onClick={() => updateQuoteStatus(quote.id, "Order Accepted")}
+                                    className="rounded-lg border border-gold/30 bg-gold/10 px-3 py-2 text-xs font-semibold text-gold transition-colors hover:bg-gold/20"
+                                  >
+                                    Accept Order
+                                  </button>
+                                ) : (
+                                  getWorkflowActions(quote.status).map((status) => (
+                                    <button
+                                      key={status}
+                                      type="button"
+                                      onClick={() => updateQuoteStatus(quote.id, status)}
+                                      className={getActionButtonStyle(status, getWorkflowStatus(quote.status))}
+                                    >
                                       {status}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
+                                    </button>
+                                  ))
+                                )}
+                              </div>
                             </TableCell>
                             <TableCell>
                               <button
