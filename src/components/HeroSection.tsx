@@ -217,15 +217,15 @@ const HeroSection = () => {
             transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] as const }}
             className="min-h-[calc(100vh-5rem)] flex items-center justify-center relative"
           >
-            {/* Branded pump background — blurred & vague */}
+            {/* Branded tanker background — subtly blurred */}
             <img
-              src={bgDieselMenu}
+              src={heroDiesel}
               alt=""
-              className="absolute inset-0 w-full h-full object-cover scale-110"
-              style={{ filter: "blur(12px)" }}
+              className="absolute inset-0 w-full h-full object-cover scale-105"
+              style={{ filter: "blur(4px)" }}
             />
-            {/* Heavy dark overlay */}
-            <div className={`absolute inset-0 bg-navy-dark/92 ${vignette}`} />
+            {/* Translucent navy overlay */}
+            <div className={`absolute inset-0 bg-navy-dark/70 ${vignette}`} />
 
             <motion.div {...formReveal} className="relative z-10 w-full py-10">
               <DieselForm onBack={() => setView("main")} />
