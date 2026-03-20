@@ -91,7 +91,10 @@ const Auth = () => {
         return;
       }
 
-      const { error, data } = await supabase.auth.signInWithPassword(parsedLogin.data);
+      const { error, data } = await supabase.auth.signInWithPassword({
+        email: parsedLogin.data.email,
+        password: parsedLogin.data.password,
+      });
       if (error) {
         toast({ title: "Login failed", description: error.message, variant: "destructive" });
         setLoading(false);
