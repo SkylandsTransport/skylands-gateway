@@ -170,10 +170,10 @@ const HeroSection = ({ onViewChange, maintenanceFlags }: HeroSectionProps) => {
               <motion.button
                 {...panelRight}
                 transition={springy}
-                onClick={() => changeView("transport")}
+                onClick={() => !maintenanceFlags?.logistics_maintenance && changeView("transport")}
                 onMouseEnter={() => setHovered("right")}
                 onMouseLeave={() => setHovered(null)}
-                className="relative flex-1 flex items-center justify-center cursor-pointer group overflow-hidden focus-visible:outline-none"
+                className={`relative flex-1 flex items-center justify-center cursor-pointer group overflow-hidden focus-visible:outline-none ${maintenanceFlags?.logistics_maintenance ? "opacity-60 cursor-not-allowed" : ""}`}
                 style={{ minHeight: "50vh" }}
               >
                 {/* Branded logistics truck photo */}
