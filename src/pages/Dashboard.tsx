@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import heroDiesel from "@/assets/hero-diesel.jpg";
-import { ClipboardList, Fuel, Truck } from "lucide-react";
+import { ClipboardList, Fuel, Truck, ArrowLeft } from "lucide-react";
 
 type Quote = {
   id: string;
