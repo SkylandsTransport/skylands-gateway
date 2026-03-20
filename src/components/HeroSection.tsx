@@ -3,36 +3,37 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Fuel, Truck, ChevronRight } from "lucide-react";
 import heroDiesel from "@/assets/hero-diesel.jpg";
 import heroTransport from "@/assets/hero-transport.jpg";
+import bgDieselMenu from "@/assets/bg-diesel-menu.jpg";
+import bgTransportMenu from "@/assets/bg-transport-menu.jpg";
 import DieselForm from "./hero/DieselForm";
 import TransportForm from "./hero/TransportForm";
 
 type View = "main" | "diesel" | "transport";
 
-/* ── animation helpers ── */
+const springy = { duration: 0.7, ease: [0.22, 1, 0.36, 1] as const };
+
 const panelLeft = {
   initial: { x: "-100%", opacity: 0 },
   animate: { x: 0, opacity: 1 },
-  exit: { x: "-100%", opacity: 0 },
+  exit: { x: "-60%", opacity: 0 },
 };
 
 const panelRight = {
   initial: { x: "100%", opacity: 0 },
   animate: { x: 0, opacity: 1 },
-  exit: { x: "100%", opacity: 0 },
+  exit: { x: "60%", opacity: 0 },
 };
 
-const springy = { duration: 0.7, ease: [0.22, 1, 0.36, 1] as const };
-
 const takeoverFromLeft = {
-  initial: { clipPath: "inset(0 50% 0 0)" },
+  initial: { clipPath: "inset(0 100% 0 0)" },
   animate: { clipPath: "inset(0 0% 0 0)" },
-  exit: { clipPath: "inset(0 50% 0 0)", opacity: 0 },
+  exit: { clipPath: "inset(0 100% 0 0)" },
 };
 
 const takeoverFromRight = {
-  initial: { clipPath: "inset(0 0 0 50%)" },
+  initial: { clipPath: "inset(0 0 0 100%)" },
   animate: { clipPath: "inset(0 0 0 0%)" },
-  exit: { clipPath: "inset(0 0 0 50%)", opacity: 0 },
+  exit: { clipPath: "inset(0 0 0 100%)" },
 };
 
 const formReveal = {
@@ -45,6 +46,10 @@ const HeroSection = () => {
   const [view, setView] = useState<View>("main");
   const [hovered, setHovered] = useState<"left" | "right" | null>(null);
   const sectionRef = useRef<HTMLElement>(null);
+
+  /* Vignette style shared across panels */
+  const vignette =
+    "shadow-[inset_0_0_120px_40px_hsl(220_60%_6%/0.7)]";
 
   return (
     <section
@@ -67,7 +72,7 @@ const HeroSection = () => {
               <motion.h1
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                transition={{ delay: 0.4, duration: 0.6, ease: [0.16, 1, 0.3, 1] as const }}
                 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-extrabold text-foreground text-center text-balance drop-shadow-lg"
                 style={{ lineHeight: "1.05" }}
               >
@@ -76,7 +81,7 @@ const HeroSection = () => {
               <motion.p
                 initial={{ opacity: 0, y: 14 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.55, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                transition={{ delay: 0.55, duration: 0.5, ease: [0.16, 1, 0.3, 1] as const }}
                 className="text-muted-foreground text-sm sm:text-base mt-3 text-center max-w-md text-pretty px-6"
               >
                 Premium diesel supply &amp; logistics across the region.
@@ -95,41 +100,41 @@ const HeroSection = () => {
                 className="relative flex-1 flex items-center justify-center cursor-pointer group overflow-hidden focus-visible:outline-none"
                 style={{ minHeight: "50vh" }}
               >
-                {/* Photo */}
+                {/* Branded tanker photo */}
                 <img
                   src={heroDiesel}
-                  alt="Diesel fuel tanker"
+                  alt="Skylands Transport branded diesel fuel tanker"
                   className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out will-change-transform group-hover:scale-[1.06]"
                 />
 
-                {/* Navy + gold colour-grade overlay */}
+                {/* Navy + gold colour-grade + vignette */}
                 <div
-                  className="absolute inset-0 transition-all duration-600 ease-out"
+                  className={`absolute inset-0 transition-all duration-600 ease-out ${vignette}`}
                   style={{
                     background: `
-                      linear-gradient(to top,   hsl(220 60% 6% / 0.94) 0%, transparent 55%),
-                      linear-gradient(to right,  hsl(220 60% 6% / 0.35) 0%, transparent 100%),
-                      linear-gradient(180deg,    hsl(43 80% 55% / 0.08) 0%, transparent 40%)
+                      linear-gradient(to top,   hsl(220 60% 6% / 0.92) 0%, transparent 50%),
+                      linear-gradient(to right,  hsl(220 60% 6% / 0.3) 0%, transparent 100%),
+                      linear-gradient(180deg,    hsl(43 80% 55% / 0.07) 0%, transparent 35%)
                     `,
-                    opacity: hovered === "right" ? 1 : hovered === "left" ? 0.55 : 0.82,
+                    opacity: hovered === "right" ? 1 : hovered === "left" ? 0.5 : 0.78,
                   }}
                 />
 
-                {/* Gold edge fade (right side) */}
-                <div className="hidden md:block absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-gold/10 to-transparent z-10 pointer-events-none" />
+                {/* Gold edge fade */}
+                <div className="hidden md:block absolute inset-y-0 right-0 w-20 bg-gradient-to-l from-gold/12 to-transparent z-10 pointer-events-none" />
 
                 {/* Content */}
-                <div className="relative z-20 flex flex-col items-center gap-5 mt-24">
+                <div className="relative z-20 flex flex-col items-center gap-5 mt-28">
                   <motion.div
                     initial={{ scale: 0.8, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     transition={{ delay: 0.5, duration: 0.5 }}
-                    className="w-16 h-16 rounded-2xl bg-gold/10 border border-gold/25 flex items-center justify-center backdrop-blur-md group-hover:bg-gold/20 group-hover:border-gold/50 group-hover:shadow-[0_0_30px_hsl(43_80%_55%/0.25)] transition-all duration-500"
+                    className="w-16 h-16 rounded-2xl bg-gold/10 border border-gold/25 flex items-center justify-center backdrop-blur-md group-hover:bg-gold/20 group-hover:border-gold/50 group-hover:shadow-[0_0_35px_hsl(43_80%_55%/0.3)] transition-all duration-500"
                   >
                     <Fuel className="w-8 h-8 text-gold" />
                   </motion.div>
 
-                  <div className="btn-gold text-xl sm:text-2xl py-5 px-8 sm:px-10 flex items-center gap-3 group-hover:shadow-[0_0_40px_hsl(43_80%_55%/0.35)] transition-shadow duration-500">
+                  <div className="btn-gold text-xl sm:text-2xl py-5 px-8 sm:px-10 flex items-center gap-3 group-hover:shadow-[0_0_50px_hsl(43_80%_55%/0.4)] transition-shadow duration-500">
                     Diesel Deliveries
                     <ChevronRight className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" />
                   </div>
@@ -158,38 +163,39 @@ const HeroSection = () => {
                 className="relative flex-1 flex items-center justify-center cursor-pointer group overflow-hidden focus-visible:outline-none"
                 style={{ minHeight: "50vh" }}
               >
+                {/* Branded logistics truck photo */}
                 <img
                   src={heroTransport}
-                  alt="Logistics transport truck"
+                  alt="Skylands Transport branded logistics truck"
                   className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out will-change-transform group-hover:scale-[1.06]"
                 />
 
                 <div
-                  className="absolute inset-0 transition-all duration-600 ease-out"
+                  className={`absolute inset-0 transition-all duration-600 ease-out ${vignette}`}
                   style={{
                     background: `
-                      linear-gradient(to top,  hsl(220 60% 6% / 0.94) 0%, transparent 55%),
-                      linear-gradient(to left, hsl(220 60% 6% / 0.35) 0%, transparent 100%),
-                      linear-gradient(180deg,  hsl(43 80% 55% / 0.06) 0%, transparent 40%)
+                      linear-gradient(to top,  hsl(220 60% 6% / 0.92) 0%, transparent 50%),
+                      linear-gradient(to left, hsl(220 60% 6% / 0.3) 0%, transparent 100%),
+                      linear-gradient(180deg,  hsl(43 80% 55% / 0.05) 0%, transparent 35%)
                     `,
-                    opacity: hovered === "left" ? 1 : hovered === "right" ? 0.55 : 0.82,
+                    opacity: hovered === "left" ? 1 : hovered === "right" ? 0.5 : 0.78,
                   }}
                 />
 
-                {/* Gold edge fade (left side) */}
-                <div className="hidden md:block absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-gold/10 to-transparent z-10 pointer-events-none" />
+                {/* Gold edge fade */}
+                <div className="hidden md:block absolute inset-y-0 left-0 w-20 bg-gradient-to-r from-gold/12 to-transparent z-10 pointer-events-none" />
 
-                <div className="relative z-20 flex flex-col items-center gap-5 mt-24">
+                <div className="relative z-20 flex flex-col items-center gap-5 mt-28">
                   <motion.div
                     initial={{ scale: 0.8, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     transition={{ delay: 0.6, duration: 0.5 }}
-                    className="w-16 h-16 rounded-2xl bg-gold/10 border border-gold/25 flex items-center justify-center backdrop-blur-md group-hover:bg-gold/20 group-hover:border-gold/50 group-hover:shadow-[0_0_30px_hsl(43_80%_55%/0.25)] transition-all duration-500"
+                    className="w-16 h-16 rounded-2xl bg-gold/10 border border-gold/25 flex items-center justify-center backdrop-blur-md group-hover:bg-gold/20 group-hover:border-gold/50 group-hover:shadow-[0_0_35px_hsl(43_80%_55%/0.3)] transition-all duration-500"
                   >
                     <Truck className="w-8 h-8 text-gold" />
                   </motion.div>
 
-                  <div className="btn-navy text-xl sm:text-2xl py-5 px-8 sm:px-10 flex items-center gap-3 group-hover:shadow-[0_0_40px_hsl(43_80%_55%/0.2)] transition-shadow duration-500">
+                  <div className="btn-navy text-xl sm:text-2xl py-5 px-8 sm:px-10 flex items-center gap-3 group-hover:shadow-[0_0_50px_hsl(43_80%_55%/0.25)] transition-shadow duration-500">
                     Logistics &amp; Transport
                     <ChevronRight className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" />
                   </div>
@@ -208,15 +214,19 @@ const HeroSection = () => {
           <motion.div
             key="diesel"
             {...takeoverFromLeft}
-            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] as const }}
             className="min-h-[calc(100vh-5rem)] flex items-center justify-center relative"
           >
+            {/* Branded pump background — blurred & vague */}
             <img
-              src={heroDiesel}
+              src={bgDieselMenu}
               alt=""
-              className="absolute inset-0 w-full h-full object-cover"
+              className="absolute inset-0 w-full h-full object-cover scale-110"
+              style={{ filter: "blur(12px)" }}
             />
-            <div className="absolute inset-0 bg-gradient-to-b from-navy-dark/96 via-navy-dark/90 to-navy-dark/96" />
+            {/* Heavy dark overlay */}
+            <div className={`absolute inset-0 bg-navy-dark/92 ${vignette}`} />
+
             <motion.div {...formReveal} className="relative z-10 w-full py-10">
               <DieselForm onBack={() => setView("main")} />
             </motion.div>
@@ -228,15 +238,18 @@ const HeroSection = () => {
           <motion.div
             key="transport"
             {...takeoverFromRight}
-            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] as const }}
             className="min-h-[calc(100vh-5rem)] flex items-center justify-center relative"
           >
+            {/* Branded truck background — blurred & vague */}
             <img
-              src={heroTransport}
+              src={bgTransportMenu}
               alt=""
-              className="absolute inset-0 w-full h-full object-cover"
+              className="absolute inset-0 w-full h-full object-cover scale-110"
+              style={{ filter: "blur(12px)" }}
             />
-            <div className="absolute inset-0 bg-gradient-to-b from-navy-dark/96 via-navy-dark/90 to-navy-dark/96" />
+            <div className={`absolute inset-0 bg-navy-dark/92 ${vignette}`} />
+
             <motion.div {...formReveal} className="relative z-10 w-full py-10">
               <TransportForm onBack={() => setView("main")} />
             </motion.div>
