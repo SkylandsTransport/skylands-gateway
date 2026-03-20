@@ -113,6 +113,33 @@ export const buildWhatsAppQuoteUrl = (
 export const normalizeLiveStatus = (status: string) =>
   ["Approved", "Accepted", "Order Accepted", "Order Approved"].includes(status) ? "Processing Order" : status;
 
+type PrioritizedOrder = {
+  status: string;
+  created_at: string;
+};
+
+export const isDeliveredOrder = (status: string) => status === "Delivered";
+
+export const sortOrdersByDeliveryPriority = <T extends PrioritizedOrder>(orders: T[]) =>
+  [...orders].sort((a, b) => {
+    const deliveryOrder = Number(isDeliveredOrder(a.status)) - Number(isDeliveredOrder(b.status));
+
+    if (deliveryOrder !== 0) {
+      return deliveryOrder;
+    }
+
+    return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+  });
+
+export const groupOrdersByDeliveryPriority = <T extends PrioritizedOrder>(orders: T[]) => {
+  const sorted = sortOrdersByDeliveryPriority(orders);
+
+  return {
+    active: sorted.filter((order) => !isDeliveredOrder(order.status)),
+    completed: sorted.filter((order) => isDeliveredOrder(order.status)),
+  };
+};
+
 export const buildManualOrderDetails = ({
   service,
   quantity,
