@@ -40,7 +40,11 @@ const formReveal = {
   transition: { delay: 0.35, duration: 0.55, ease: [0.16, 1, 0.3, 1] as const },
 };
 
-const HeroSection = () => {
+interface HeroSectionProps {
+  onViewChange?: (view: View) => void;
+}
+
+const HeroSection = ({ onViewChange }: HeroSectionProps) => {
   const [view, setView] = useState<View>("main");
   const [hovered, setHovered] = useState<"left" | "right" | null>(null);
   const sectionRef = useRef<HTMLElement>(null);
