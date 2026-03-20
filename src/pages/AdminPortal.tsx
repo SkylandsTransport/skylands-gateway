@@ -204,7 +204,13 @@ const AdminPortal = () => {
                 </h1>
               </div>
             </div>
-            <span className="text-xs text-white/40 hidden sm:block">{user.email}</span>
+            <button
+              onClick={() => navigate("/")}
+              className="flex items-center gap-2 bg-gold/10 border border-gold/30 text-gold hover:bg-gold/20 transition-colors py-2 px-4 rounded-xl text-sm font-medium"
+            >
+              <Eye className="w-4 h-4" />
+              Client View
+            </button>
           </div>
         </div>
 
