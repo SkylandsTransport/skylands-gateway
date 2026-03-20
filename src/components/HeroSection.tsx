@@ -101,7 +101,7 @@ const HeroSection = ({ onViewChange }: HeroSectionProps) => {
               <motion.button
                 {...panelLeft}
                 transition={springy}
-                onClick={() => setView("diesel")}
+                onClick={() => changeView("diesel")}
                 onMouseEnter={() => setHovered("left")}
                 onMouseLeave={() => setHovered(null)}
                 className="relative flex-1 flex items-center justify-center cursor-pointer group overflow-hidden focus-visible:outline-none"
