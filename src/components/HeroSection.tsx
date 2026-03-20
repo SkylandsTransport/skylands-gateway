@@ -1,32 +1,56 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Fuel, Truck, ArrowRight, ArrowLeft } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 import heroTanker from "@/assets/hero-tanker.jpg";
 import heroTruck from "@/assets/hero-truck.jpg";
 
 const PHONE = "27686347810";
 
+const DELIVERY_OPTIONS = [
+  { value: "standard", label: "Standard Delivery (2–3 Business Days)" },
+  { value: "express", label: "Express Delivery (Next Day)" },
+  { value: "emergency", label: "Emergency Refuel (Same Day / Within 6 Hours)" },
+  { value: "recurring", label: "Scheduled Recurring (Weekly/Monthly)" },
+];
+
 type View = "main" | "diesel" | "transport";
 
 const HeroSection = () => {
+  const { profile } = useAuth();
   const [view, setView] = useState<View>("main");
 
   // Diesel state
+  const [dieselName, setDieselName] = useState("");
   const [dieselLiters, setDieselLiters] = useState("");
-  const [deliveryMethod, setDeliveryMethod] = useState("delivery");
+  const [deliverySpeed, setDeliverySpeed] = useState("standard");
+  const [specialInstructions, setSpecialInstructions] = useState("");
 
   // Transport state
+  const [transportName, setTransportName] = useState("");
   const [cargoType, setCargoType] = useState("");
   const [pickupLocation, setPickupLocation] = useState("");
   const [destination, setDestination] = useState("");
   const [kilometers, setKilometers] = useState("");
 
+  // Auto-fill from profile
+  useEffect(() => {
+    if (profile) {
+      setDieselName(profile.full_name ?? "");
+      setTransportName(profile.full_name ?? "");
+      if (profile.default_address) {
+        setPickupLocation(profile.default_address);
+      }
+    }
+  }, [profile]);
+
   const getDieselUrl = () => {
-    const msg = `Hello Skylands Transport, I need a diesel quote.\n\nLiters: ${dieselLiters}\nMethod: ${deliveryMethod === "delivery" ? "Delivery" : "Pumped into Vehicles"}`;
+    const speedLabel = DELIVERY_OPTIONS.find(o => o.value === deliverySpeed)?.label ?? deliverySpeed;
+    const msg = `Hello Skylands Transport, I need a diesel quote.\n\nName: ${dieselName}\nLiters: ${dieselLiters}\nDelivery Speed: ${speedLabel}${specialInstructions ? `\nSpecial Instructions: ${specialInstructions}` : ""}`;
     return `https://wa.me/${PHONE}?text=${encodeURIComponent(msg)}`;
   };
 
   const getTransportUrl = () => {
-    const msg = `Hello Skylands Transport, I need a logistics quote.\n\nCargo: ${cargoType}\nPickup: ${pickupLocation}\nDestination: ${destination}\nDistance: ${kilometers} km`;
+    const msg = `Hello Skylands Transport, I need a logistics quote.\n\nName: ${transportName}\nCargo: ${cargoType}\nPickup: ${pickupLocation}\nDestination: ${destination}\nDistance: ${kilometers} km`;
     return `https://wa.me/${PHONE}?text=${encodeURIComponent(msg)}`;
   };
 
@@ -51,6 +75,17 @@ const HeroSection = () => {
 
             <div className="space-y-5">
               <div>
+                <label className="block text-sm font-medium text-muted-foreground mb-2">Your Name</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Thabo Mokoena"
+                  value={dieselName}
+                  onChange={(e) => setDieselName(e.target.value)}
+                  className="input-premium"
+                />
+              </div>
+
+              <div>
                 <label className="block text-sm font-medium text-muted-foreground mb-2">Quantity in Liters</label>
                 <input
                   type="number"
@@ -63,15 +98,29 @@ const HeroSection = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-muted-foreground mb-2">Delivery Method</label>
+                <label className="block text-sm font-medium text-muted-foreground mb-2">Delivery Speed</label>
                 <select
-                  value={deliveryMethod}
-                  onChange={(e) => setDeliveryMethod(e.target.value)}
+                  value={deliverySpeed}
+                  onChange={(e) => setDeliverySpeed(e.target.value)}
                   className="input-premium appearance-none"
                 >
-                  <option value="delivery">Delivery to Site</option>
-                  <option value="pumped">Pumped into Vehicles</option>
+                  {DELIVERY_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value} className="bg-navy text-foreground">
+                      {opt.label}
+                    </option>
+                  ))}
                 </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-muted-foreground mb-2">Special Instructions</label>
+                <textarea
+                  placeholder="e.g. Gate code: 1234, Tank behind warehouse B"
+                  value={specialInstructions}
+                  onChange={(e) => setSpecialInstructions(e.target.value)}
+                  rows={3}
+                  className="input-premium resize-none"
+                />
               </div>
 
               <a
@@ -110,6 +159,17 @@ const HeroSection = () => {
             </div>
 
             <div className="space-y-5">
+              <div>
+                <label className="block text-sm font-medium text-muted-foreground mb-2">Your Name</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Thabo Mokoena"
+                  value={transportName}
+                  onChange={(e) => setTransportName(e.target.value)}
+                  className="input-premium"
+                />
+              </div>
+
               <div>
                 <label className="block text-sm font-medium text-muted-foreground mb-2">Cargo Type</label>
                 <input
