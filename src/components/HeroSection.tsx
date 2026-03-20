@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Fuel, Truck } from "lucide-react";
+import { Fuel, Truck, ChevronRight } from "lucide-react";
 import heroDiesel from "@/assets/hero-diesel.jpg";
 import heroTransport from "@/assets/hero-transport.jpg";
 import DieselForm from "./hero/DieselForm";
@@ -8,125 +8,238 @@ import TransportForm from "./hero/TransportForm";
 
 type View = "main" | "diesel" | "transport";
 
+/* ── animation helpers ── */
+const panelLeft = {
+  initial: { x: "-100%", opacity: 0 },
+  animate: { x: 0, opacity: 1 },
+  exit: { x: "-100%", opacity: 0 },
+};
+
+const panelRight = {
+  initial: { x: "100%", opacity: 0 },
+  animate: { x: 0, opacity: 1 },
+  exit: { x: "100%", opacity: 0 },
+};
+
+const springy = { duration: 0.7, ease: [0.22, 1, 0.36, 1] as const };
+
+const takeoverFromLeft = {
+  initial: { clipPath: "inset(0 50% 0 0)" },
+  animate: { clipPath: "inset(0 0% 0 0)" },
+  exit: { clipPath: "inset(0 50% 0 0)", opacity: 0 },
+};
+
+const takeoverFromRight = {
+  initial: { clipPath: "inset(0 0 0 50%)" },
+  animate: { clipPath: "inset(0 0 0 0%)" },
+  exit: { clipPath: "inset(0 0 0 50%)", opacity: 0 },
+};
+
+const formReveal = {
+  initial: { opacity: 0, y: 50, filter: "blur(8px)" },
+  animate: { opacity: 1, y: 0, filter: "blur(0px)" },
+  transition: { delay: 0.35, duration: 0.55, ease: [0.16, 1, 0.3, 1] as const },
+};
+
 const HeroSection = () => {
   const [view, setView] = useState<View>("main");
   const [hovered, setHovered] = useState<"left" | "right" | null>(null);
+  const sectionRef = useRef<HTMLElement>(null);
 
   return (
-    <section className="min-h-screen pt-20 relative overflow-hidden bg-background">
+    <section
+      ref={sectionRef}
+      className="min-h-screen pt-20 relative overflow-hidden bg-background"
+    >
       <AnimatePresence mode="wait">
-        {view === "main" ? (
+        {/* ═══════════════════ MAIN SPLIT SCREEN ═══════════════════ */}
+        {view === "main" && (
           <motion.div
             key="main"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            exit={{ opacity: 0, scale: 0.98 }}
-            transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
             className="min-h-[calc(100vh-5rem)] flex flex-col"
           >
-            {/* Title overlay */}
-            <div className="absolute inset-x-0 top-20 z-20 flex flex-col items-center pt-8 pointer-events-none">
-              <h1
-                className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground text-center text-balance"
-                style={{ lineHeight: "1.1" }}
+            {/* Floating title */}
+            <div className="absolute inset-x-0 top-20 z-30 flex flex-col items-center pt-10 sm:pt-14 pointer-events-none">
+              <motion.h1
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-extrabold text-foreground text-center text-balance drop-shadow-lg"
+                style={{ lineHeight: "1.05" }}
               >
                 Skylands Transport
-              </h1>
-              <p className="text-muted-foreground text-sm sm:text-base mt-3 text-center max-w-md text-pretty px-4">
-                Premium diesel supply and logistics solutions across the region.
-              </p>
+              </motion.h1>
+              <motion.p
+                initial={{ opacity: 0, y: 14 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.55, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                className="text-muted-foreground text-sm sm:text-base mt-3 text-center max-w-md text-pretty px-6"
+              >
+                Premium diesel supply &amp; logistics across the region.
+              </motion.p>
             </div>
 
-            {/* Split screen */}
+            {/* Split panels */}
             <div className="flex-1 flex flex-col md:flex-row relative">
-              {/* LEFT — Diesel */}
-              <button
+              {/* ── LEFT: Diesel ── */}
+              <motion.button
+                {...panelLeft}
+                transition={springy}
                 onClick={() => setView("diesel")}
                 onMouseEnter={() => setHovered("left")}
                 onMouseLeave={() => setHovered(null)}
-                className="relative flex-1 flex items-end justify-center pb-16 md:pb-20 cursor-pointer group overflow-hidden active:scale-[0.99] transition-transform duration-300"
+                className="relative flex-1 flex items-center justify-center cursor-pointer group overflow-hidden focus-visible:outline-none"
                 style={{ minHeight: "50vh" }}
               >
+                {/* Photo */}
                 <img
                   src={heroDiesel}
                   alt="Diesel fuel tanker"
-                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out will-change-transform group-hover:scale-[1.06]"
                 />
-                {/* Overlay */}
+
+                {/* Navy + gold colour-grade overlay */}
                 <div
-                  className="absolute inset-0 transition-opacity duration-500"
+                  className="absolute inset-0 transition-all duration-600 ease-out"
                   style={{
-                    background:
-                      "linear-gradient(to top, hsl(220 60% 6% / 0.92) 0%, hsl(220 60% 8% / 0.7) 50%, hsl(220 60% 10% / 0.5) 100%)",
-                    opacity: hovered === "right" ? 0.95 : hovered === "left" ? 0.6 : 0.78,
+                    background: `
+                      linear-gradient(to top,   hsl(220 60% 6% / 0.94) 0%, transparent 55%),
+                      linear-gradient(to right,  hsl(220 60% 6% / 0.35) 0%, transparent 100%),
+                      linear-gradient(180deg,    hsl(43 80% 55% / 0.08) 0%, transparent 40%)
+                    `,
+                    opacity: hovered === "right" ? 1 : hovered === "left" ? 0.55 : 0.82,
                   }}
                 />
-                <div className="relative z-10 flex flex-col items-center gap-3">
-                  <div className="w-14 h-14 rounded-2xl bg-gold/15 border border-gold/30 flex items-center justify-center backdrop-blur-sm group-hover:bg-gold/25 transition-colors duration-300">
-                    <Fuel className="w-7 h-7 text-gold" />
+
+                {/* Gold edge fade (right side) */}
+                <div className="hidden md:block absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-gold/10 to-transparent z-10 pointer-events-none" />
+
+                {/* Content */}
+                <div className="relative z-20 flex flex-col items-center gap-5 mt-24">
+                  <motion.div
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ delay: 0.5, duration: 0.5 }}
+                    className="w-16 h-16 rounded-2xl bg-gold/10 border border-gold/25 flex items-center justify-center backdrop-blur-md group-hover:bg-gold/20 group-hover:border-gold/50 group-hover:shadow-[0_0_30px_hsl(43_80%_55%/0.25)] transition-all duration-500"
+                  >
+                    <Fuel className="w-8 h-8 text-gold" />
+                  </motion.div>
+
+                  <div className="btn-gold text-xl sm:text-2xl py-5 px-8 sm:px-10 flex items-center gap-3 group-hover:shadow-[0_0_40px_hsl(43_80%_55%/0.35)] transition-shadow duration-500">
+                    Diesel Deliveries
+                    <ChevronRight className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" />
                   </div>
-                  <span className="text-xl font-semibold text-foreground">Diesel Deliveries</span>
-                  <span className="text-xs text-muted-foreground">Click to get a quote</span>
+
+                  <span className="text-xs text-muted-foreground/70 tracking-wide uppercase">
+                    Bulk &middot; Bowser &middot; Direct
+                  </span>
                 </div>
-              </button>
+              </motion.button>
 
-              {/* Divider */}
-              <div className="hidden md:block w-px bg-border/40 relative z-10" />
-              <div className="block md:hidden h-px bg-border/40 relative z-10" />
+              {/* ── Gold centre divider ── */}
+              <div className="hidden md:flex relative z-20 items-center">
+                <div className="w-px h-full bg-gradient-to-b from-transparent via-gold/40 to-transparent" />
+              </div>
+              <div className="block md:hidden relative z-20">
+                <div className="h-px w-full bg-gradient-to-r from-transparent via-gold/40 to-transparent" />
+              </div>
 
-              {/* RIGHT — Transport */}
-              <button
+              {/* ── RIGHT: Transport ── */}
+              <motion.button
+                {...panelRight}
+                transition={springy}
                 onClick={() => setView("transport")}
                 onMouseEnter={() => setHovered("right")}
                 onMouseLeave={() => setHovered(null)}
-                className="relative flex-1 flex items-end justify-center pb-16 md:pb-20 cursor-pointer group overflow-hidden active:scale-[0.99] transition-transform duration-300"
+                className="relative flex-1 flex items-center justify-center cursor-pointer group overflow-hidden focus-visible:outline-none"
                 style={{ minHeight: "50vh" }}
               >
                 <img
                   src={heroTransport}
                   alt="Logistics transport truck"
-                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out will-change-transform group-hover:scale-[1.06]"
                 />
+
                 <div
-                  className="absolute inset-0 transition-opacity duration-500"
+                  className="absolute inset-0 transition-all duration-600 ease-out"
                   style={{
-                    background:
-                      "linear-gradient(to top, hsl(220 60% 6% / 0.92) 0%, hsl(220 60% 8% / 0.7) 50%, hsl(220 60% 10% / 0.5) 100%)",
-                    opacity: hovered === "left" ? 0.95 : hovered === "right" ? 0.6 : 0.78,
+                    background: `
+                      linear-gradient(to top,  hsl(220 60% 6% / 0.94) 0%, transparent 55%),
+                      linear-gradient(to left, hsl(220 60% 6% / 0.35) 0%, transparent 100%),
+                      linear-gradient(180deg,  hsl(43 80% 55% / 0.06) 0%, transparent 40%)
+                    `,
+                    opacity: hovered === "left" ? 1 : hovered === "right" ? 0.55 : 0.82,
                   }}
                 />
-                <div className="relative z-10 flex flex-col items-center gap-3">
-                  <div className="w-14 h-14 rounded-2xl bg-gold/15 border border-gold/30 flex items-center justify-center backdrop-blur-sm group-hover:bg-gold/25 transition-colors duration-300">
-                    <Truck className="w-7 h-7 text-gold" />
+
+                {/* Gold edge fade (left side) */}
+                <div className="hidden md:block absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-gold/10 to-transparent z-10 pointer-events-none" />
+
+                <div className="relative z-20 flex flex-col items-center gap-5 mt-24">
+                  <motion.div
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ delay: 0.6, duration: 0.5 }}
+                    className="w-16 h-16 rounded-2xl bg-gold/10 border border-gold/25 flex items-center justify-center backdrop-blur-md group-hover:bg-gold/20 group-hover:border-gold/50 group-hover:shadow-[0_0_30px_hsl(43_80%_55%/0.25)] transition-all duration-500"
+                  >
+                    <Truck className="w-8 h-8 text-gold" />
+                  </motion.div>
+
+                  <div className="btn-navy text-xl sm:text-2xl py-5 px-8 sm:px-10 flex items-center gap-3 group-hover:shadow-[0_0_40px_hsl(43_80%_55%/0.2)] transition-shadow duration-500">
+                    Logistics &amp; Transport
+                    <ChevronRight className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" />
                   </div>
-                  <span className="text-xl font-semibold text-foreground">Logistics & Transport</span>
-                  <span className="text-xs text-muted-foreground">Click to get a quote</span>
+
+                  <span className="text-xs text-muted-foreground/70 tracking-wide uppercase">
+                    FTL &middot; LTL &middot; Express
+                  </span>
                 </div>
-              </button>
+              </motion.button>
             </div>
           </motion.div>
-        ) : view === "diesel" ? (
+        )}
+
+        {/* ═══════════════════ DIESEL TAKEOVER ═══════════════════ */}
+        {view === "diesel" && (
           <motion.div
             key="diesel"
+            {...takeoverFromLeft}
+            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
             className="min-h-[calc(100vh-5rem)] flex items-center justify-center relative"
           >
-            {/* Background */}
-            <img src={heroDiesel} alt="" className="absolute inset-0 w-full h-full object-cover" />
-            <div className="absolute inset-0 bg-gradient-to-b from-navy-dark/95 via-navy-dark/88 to-navy-dark/95" />
-            <div className="relative z-10 w-full py-12">
+            <img
+              src={heroDiesel}
+              alt=""
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-b from-navy-dark/96 via-navy-dark/90 to-navy-dark/96" />
+            <motion.div {...formReveal} className="relative z-10 w-full py-10">
               <DieselForm onBack={() => setView("main")} />
-            </div>
+            </motion.div>
           </motion.div>
-        ) : (
+        )}
+
+        {/* ═══════════════════ TRANSPORT TAKEOVER ═══════════════════ */}
+        {view === "transport" && (
           <motion.div
             key="transport"
+            {...takeoverFromRight}
+            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
             className="min-h-[calc(100vh-5rem)] flex items-center justify-center relative"
           >
-            <img src={heroTransport} alt="" className="absolute inset-0 w-full h-full object-cover" />
-            <div className="absolute inset-0 bg-gradient-to-b from-navy-dark/95 via-navy-dark/88 to-navy-dark/95" />
-            <div className="relative z-10 w-full py-12">
+            <img
+              src={heroTransport}
+              alt=""
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-b from-navy-dark/96 via-navy-dark/90 to-navy-dark/96" />
+            <motion.div {...formReveal} className="relative z-10 w-full py-10">
               <TransportForm onBack={() => setView("main")} />
-            </div>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
