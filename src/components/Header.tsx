@@ -156,6 +156,14 @@ const Header = () => {
 
               {user ? (
                 <>
+                  {user.email === "delarey.skylands@gmail.com" && (
+                    <button
+                      onClick={() => { navigate("/admin-portal"); setIsMobileMenuOpen(false); }}
+                      className="flex items-center gap-2 bg-gradient-to-r from-[hsl(43,74%,49%)] to-[hsl(43,74%,42%)] text-navy-dark font-semibold py-3 px-4 rounded-xl text-center"
+                    >
+                      <Shield className="w-4 h-4" /> Admin Dashboard
+                    </button>
+                  )}
                   <button
                     onClick={() => { navigate("/dashboard"); setIsMobileMenuOpen(false); }}
                     className="text-white/70 hover:text-gold transition-colors duration-300 font-medium py-2 text-left flex items-center gap-2"
