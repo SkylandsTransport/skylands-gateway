@@ -46,9 +46,14 @@ const TransportForm = ({ onBack }: TransportFormProps) => {
     if (profile?.default_address) setPickup(profile.default_address);
   }, [profile]);
 
+  const customerName = profile?.full_name?.trim();
+
   const getUrl = () => {
-    const msg = `Hello Skylands Transport, I need a logistics quote. Service: ${serviceType}, Cargo: ${loadDetail}, Weight: ${weightClass}. From: ${pickup || "—"} to ${dropoff || "—"}.`;
-    return `https://wa.me/${PHONE}?text=${encodeURIComponent(msg)}`;
+    const message = customerName
+      ? `Hello Skylands Transport, my name is ${customerName}. I need a logistics quote for ${loadDetail}. Route: ${pickup || "—"} to ${dropoff || "—"}. Weight: ${weightClass}.`
+      : `Hello Skylands Transport, I would like to request a logistics quote for ${loadDetail}. Route: ${pickup || "—"} to ${dropoff || "—"}. Weight: ${weightClass}.`;
+
+    return `https://wa.me/${PHONE}?text=${encodeURIComponent(message)}`;
   };
 
   const getDetails = () =>
