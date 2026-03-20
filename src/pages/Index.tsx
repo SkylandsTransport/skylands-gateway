@@ -8,15 +8,19 @@ import { useSiteSettings } from "@/hooks/useSiteSettings";
 
 const Index = () => {
   const [heroView, setHeroView] = useState<"main" | "diesel" | "transport">("main");
+  const { settings } = useSiteSettings();
 
   return (
     <div className="min-h-screen bg-background">
-      <Header />
-      <main>
-        <HeroSection onViewChange={setHeroView} />
-        {heroView === "main" && <AboutSection />}
-      </main>
-      {heroView === "main" && <Footer />}
+      <AnnouncementBar />
+      <div className={settings.announcement ? "pt-10" : ""}>
+        <Header />
+        <main>
+          <HeroSection onViewChange={setHeroView} maintenanceFlags={settings} />
+          {heroView === "main" && <AboutSection />}
+        </main>
+        {heroView === "main" && <Footer />}
+      </div>
     </div>
   );
 };
