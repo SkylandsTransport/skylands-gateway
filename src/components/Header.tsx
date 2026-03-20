@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Menu, X, User, LogOut, ClipboardList } from "lucide-react";
+import { Menu, X, User, LogOut, ClipboardList, Shield } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 
