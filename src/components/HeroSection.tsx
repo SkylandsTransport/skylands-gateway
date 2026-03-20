@@ -105,10 +105,10 @@ const HeroSection = ({ onViewChange, maintenanceFlags }: HeroSectionProps) => {
               <motion.button
                 {...panelLeft}
                 transition={springy}
-                onClick={() => changeView("diesel")}
+                onClick={() => !maintenanceFlags?.diesel_maintenance && changeView("diesel")}
                 onMouseEnter={() => setHovered("left")}
                 onMouseLeave={() => setHovered(null)}
-                className="relative flex-1 flex items-center justify-center cursor-pointer group overflow-hidden focus-visible:outline-none"
+                className={`relative flex-1 flex items-center justify-center cursor-pointer group overflow-hidden focus-visible:outline-none ${maintenanceFlags?.diesel_maintenance ? "opacity-60 cursor-not-allowed" : ""}`}
                 style={{ minHeight: "50vh" }}
               >
                 {/* Branded tanker photo */}
