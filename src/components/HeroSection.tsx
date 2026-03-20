@@ -209,13 +209,15 @@ const HeroSection = ({ onViewChange, maintenanceFlags }: HeroSectionProps) => {
                   </motion.div>
 
                   <div className="btn-navy text-xl sm:text-2xl py-5 px-8 sm:px-10 flex items-center gap-3 group-hover:shadow-[0_0_50px_hsl(43_80%_55%/0.25)] transition-shadow duration-500">
-                    Logistics &amp; Transport
-                    <ChevronRight className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" />
+                    {maintenanceFlags?.logistics_maintenance ? "Temporarily Unavailable" : "Logistics & Transport"}
+                    {!maintenanceFlags?.logistics_maintenance && <ChevronRight className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" />}
                   </div>
 
-                  <span className="text-xs text-muted-foreground/70 tracking-wide uppercase">
-                    FTL &middot; LTL &middot; Express
-                  </span>
+                  {!maintenanceFlags?.logistics_maintenance && (
+                    <span className="text-xs text-muted-foreground/70 tracking-wide uppercase">
+                      FTL &middot; LTL &middot; Express
+                    </span>
+                  )}
                 </div>
               </motion.button>
             </div>
