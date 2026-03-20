@@ -45,7 +45,8 @@ const HeroSection = () => {
 
   const getDieselUrl = () => {
     const speedLabel = DELIVERY_OPTIONS.find(o => o.value === deliverySpeed)?.label ?? deliverySpeed;
-    const msg = `Hello Skylands Transport, I need a diesel quote.\n\nName: ${dieselName}\nLiters: ${dieselLiters}\nDelivery Speed: ${speedLabel}${specialInstructions ? `\nSpecial Instructions: ${specialInstructions}` : ""}`;
+    const location = profile?.default_address ?? "";
+    const msg = `Hello Skylands Transport, I would like a diesel quote.\n\nName: ${dieselName}\nVolume: ${dieselLiters}L\nPriority: ${speedLabel}\nLocation: ${location}${specialInstructions ? `\nSpecial Instructions: ${specialInstructions}` : ""}`;
     return `https://wa.me/${PHONE}?text=${encodeURIComponent(msg)}`;
   };
 
