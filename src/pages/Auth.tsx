@@ -19,11 +19,12 @@ const Auth = () => {
     setLoading(true);
 
     if (isLogin) {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      const { error, data } = await supabase.auth.signInWithPassword({ email, password });
       if (error) {
         toast({ title: "Login failed", description: error.message, variant: "destructive" });
       } else {
-        navigate("/");
+        const isAdmin = data.user?.email === "delarey.skylands@gmail.com";
+        navigate(isAdmin ? "/admin-portal" : "/");
       }
     } else {
       const { error } = await supabase.auth.signUp({

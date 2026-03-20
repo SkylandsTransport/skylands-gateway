@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Menu, X, User, LogOut, ClipboardList } from "lucide-react";
+import { Menu, X, User, LogOut, ClipboardList, Shield } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 
@@ -75,6 +75,15 @@ const Header = () => {
 
             {user ? (
               <div className="flex items-center gap-4">
+                {user.email === "delarey.skylands@gmail.com" && (
+                  <button
+                    onClick={() => navigate("/admin-portal")}
+                    className="flex items-center gap-2 bg-gradient-to-r from-[hsl(43,74%,49%)] to-[hsl(43,74%,42%)] text-navy-dark font-semibold py-2 px-4 rounded-xl hover:shadow-lg hover:shadow-gold/25 transition-all duration-300 active:scale-[0.97]"
+                  >
+                    <Shield className="w-4 h-4" />
+                    Admin Dashboard
+                  </button>
+                )}
                 <button
                   onClick={() => navigate("/dashboard")}
                   className="flex items-center gap-2 text-white/70 hover:text-gold transition-colors duration-300 font-medium"
@@ -147,6 +156,14 @@ const Header = () => {
 
               {user ? (
                 <>
+                  {user.email === "delarey.skylands@gmail.com" && (
+                    <button
+                      onClick={() => { navigate("/admin-portal"); setIsMobileMenuOpen(false); }}
+                      className="flex items-center gap-2 bg-gradient-to-r from-[hsl(43,74%,49%)] to-[hsl(43,74%,42%)] text-navy-dark font-semibold py-3 px-4 rounded-xl text-center"
+                    >
+                      <Shield className="w-4 h-4" /> Admin Dashboard
+                    </button>
+                  )}
                   <button
                     onClick={() => { navigate("/dashboard"); setIsMobileMenuOpen(false); }}
                     className="text-white/70 hover:text-gold transition-colors duration-300 font-medium py-2 text-left flex items-center gap-2"
