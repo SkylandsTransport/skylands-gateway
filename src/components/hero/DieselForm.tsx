@@ -1,7 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Fuel, ArrowRight, ArrowLeft } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import QuoteModal from "@/components/QuoteModal";
 
 const PHONE = "27686347810";
 
@@ -34,7 +36,7 @@ interface DieselFormProps {
 }
 
 const DieselForm = ({ onBack }: DieselFormProps) => {
-  const { profile } = useAuth();
+  const { user, profile } = useAuth();
   const [liters, setLiters] = useState("");
   const [fuelGrade, setFuelGrade] = useState("50ppm Diesel");
   const [deliveryMethod, setDeliveryMethod] = useState("Bulk Tanker");
@@ -42,6 +44,8 @@ const DieselForm = ({ onBack }: DieselFormProps) => {
   const [priority, setPriority] = useState("Standard");
   const [location, setLocation] = useState("");
   const [instructions, setInstructions] = useState("");
+  const [showModal, setShowModal] = useState(false);
+  const [waUrl, setWaUrl] = useState("");
 
   useEffect(() => {
     if (profile?.default_address) setLocation(profile.default_address);
@@ -61,121 +65,122 @@ const DieselForm = ({ onBack }: DieselFormProps) => {
     return `https://wa.me/${PHONE}?text=${encodeURIComponent(parts.join(", ") + ".")}`;
   };
 
-  const selectClass =
-    "input-premium appearance-none cursor-pointer";
+  const getDetails = () =>
+    `${fuelGrade}, ${liters || "—"}L, ${deliveryMethod}, ${schedule}, ${priority}, ${location || "—"}`;
+
+  const handleGetQuote = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    const url = getUrl();
+    setWaUrl(url);
+
+    // Save to DB if logged in
+    if (user) {
+      await supabase.from("quotes").insert({
+        user_id: user.id,
+        service: "Diesel",
+        details: getDetails(),
+      });
+    }
+
+    setShowModal(true);
+  };
+
+  const handleModalComplete = useCallback(() => {
+    setShowModal(false);
+    window.open(waUrl, "_blank", "noopener,noreferrer");
+  }, [waUrl]);
+
+  const selectClass = "input-premium appearance-none cursor-pointer";
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 40, filter: "blur(6px)" }}
-      animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-      exit={{ opacity: 0, y: -30, filter: "blur(6px)" }}
-      transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
-      className="w-full max-w-xl mx-auto px-4"
-    >
-      <button
-        onClick={onBack}
-        className="inline-flex items-center gap-2 text-muted-foreground hover:text-gold transition-colors mb-6 active:scale-[0.96]"
+    <>
+      <QuoteModal open={showModal} onComplete={handleModalComplete} />
+      <motion.div
+        initial={{ opacity: 0, y: 40, filter: "blur(6px)" }}
+        animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+        exit={{ opacity: 0, y: -30, filter: "blur(6px)" }}
+        transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
+        className="w-full max-w-xl mx-auto px-4"
       >
-        <ArrowLeft className="w-4 h-4" />
-        Back
-      </button>
+        <button
+          onClick={onBack}
+          className="inline-flex items-center gap-2 text-muted-foreground hover:text-gold transition-colors mb-6 active:scale-[0.96]"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Back
+        </button>
 
-      <div className="glass-card p-6 lg:p-8">
-        <div className="flex items-center gap-3 mb-6">
-          <Fuel className="w-6 h-6 text-gold" />
-          <h3 className="text-xl font-bold text-foreground">Diesel Quote</h3>
+        <div className="glass-card p-6 lg:p-8">
+          <div className="flex items-center gap-3 mb-6">
+            <Fuel className="w-6 h-6 text-gold" />
+            <h3 className="text-xl font-bold text-foreground">Diesel Quote</h3>
+          </div>
+
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-medium text-muted-foreground mb-1.5">Fuel Grade</label>
+                <select value={fuelGrade} onChange={(e) => setFuelGrade(e.target.value)} className={selectClass}>
+                  {FUEL_GRADES.map((o) => (
+                    <option key={o.value} value={o.value} className="bg-navy text-foreground">{o.label}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-muted-foreground mb-1.5">Volume (Liters)</label>
+                <input type="number" min="1" placeholder="e.g. 5000" value={liters} onChange={(e) => setLiters(e.target.value)} className="input-premium" />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-medium text-muted-foreground mb-1.5">Delivery Method</label>
+                <select value={deliveryMethod} onChange={(e) => setDeliveryMethod(e.target.value)} className={selectClass}>
+                  {DELIVERY_METHODS.map((o) => (
+                    <option key={o.value} value={o.value} className="bg-navy text-foreground">{o.label}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-muted-foreground mb-1.5">Schedule</label>
+                <select value={schedule} onChange={(e) => setSchedule(e.target.value)} className={selectClass}>
+                  {SCHEDULES.map((o) => (
+                    <option key={o.value} value={o.value} className="bg-navy text-foreground">{o.label}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-muted-foreground mb-1.5">Delivery Priority</label>
+              <select value={priority} onChange={(e) => setPriority(e.target.value)} className={selectClass}>
+                {PRIORITIES.map((o) => (
+                  <option key={o.value} value={o.value} className="bg-navy text-foreground">{o.label}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-muted-foreground mb-1.5">Delivery Location</label>
+              <input type="text" placeholder="e.g. Johannesburg CBD" value={location} onChange={(e) => setLocation(e.target.value)} className="input-premium" />
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-muted-foreground mb-1.5">Special Instructions (optional)</label>
+              <textarea rows={2} placeholder="Any additional notes…" value={instructions} onChange={(e) => setInstructions(e.target.value)} className="input-premium resize-none" />
+            </div>
+
+            <button
+              onClick={handleGetQuote}
+              className="btn-gold w-full flex items-center justify-center gap-3 text-base mt-2 active:scale-[0.97]"
+            >
+              Get Quote via WhatsApp <ArrowRight className="w-5 h-5" />
+            </button>
+            <p className="text-xs text-muted-foreground text-center">Opens WhatsApp with your quote details</p>
+          </div>
         </div>
-
-        <div className="space-y-4">
-          {/* Row: Grade + Liters */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-medium text-muted-foreground mb-1.5">Fuel Grade</label>
-              <select value={fuelGrade} onChange={(e) => setFuelGrade(e.target.value)} className={selectClass}>
-                {FUEL_GRADES.map((o) => (
-                  <option key={o.value} value={o.value} className="bg-navy text-foreground">{o.label}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-muted-foreground mb-1.5">Volume (Liters)</label>
-              <input
-                type="number"
-                min="1"
-                placeholder="e.g. 5000"
-                value={liters}
-                onChange={(e) => setLiters(e.target.value)}
-                className="input-premium"
-              />
-            </div>
-          </div>
-
-          {/* Row: Method + Schedule */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-medium text-muted-foreground mb-1.5">Delivery Method</label>
-              <select value={deliveryMethod} onChange={(e) => setDeliveryMethod(e.target.value)} className={selectClass}>
-                {DELIVERY_METHODS.map((o) => (
-                  <option key={o.value} value={o.value} className="bg-navy text-foreground">{o.label}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-muted-foreground mb-1.5">Schedule</label>
-              <select value={schedule} onChange={(e) => setSchedule(e.target.value)} className={selectClass}>
-                {SCHEDULES.map((o) => (
-                  <option key={o.value} value={o.value} className="bg-navy text-foreground">{o.label}</option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          {/* Priority */}
-          <div>
-            <label className="block text-xs font-medium text-muted-foreground mb-1.5">Delivery Priority</label>
-            <select value={priority} onChange={(e) => setPriority(e.target.value)} className={selectClass}>
-              {PRIORITIES.map((o) => (
-                <option key={o.value} value={o.value} className="bg-navy text-foreground">{o.label}</option>
-              ))}
-            </select>
-          </div>
-
-          {/* Location */}
-          <div>
-            <label className="block text-xs font-medium text-muted-foreground mb-1.5">Delivery Location</label>
-            <input
-              type="text"
-              placeholder="e.g. Johannesburg CBD"
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-              className="input-premium"
-            />
-          </div>
-
-          {/* Instructions */}
-          <div>
-            <label className="block text-xs font-medium text-muted-foreground mb-1.5">Special Instructions (optional)</label>
-            <textarea
-              rows={2}
-              placeholder="Any additional notes…"
-              value={instructions}
-              onChange={(e) => setInstructions(e.target.value)}
-              className="input-premium resize-none"
-            />
-          </div>
-
-          <a
-            href={getUrl()}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn-gold w-full flex items-center justify-center gap-3 text-base mt-2 active:scale-[0.97]"
-          >
-            Get Quote via WhatsApp <ArrowRight className="w-5 h-5" />
-          </a>
-          <p className="text-xs text-muted-foreground text-center">Opens WhatsApp with your quote details</p>
-        </div>
-      </div>
-    </motion.div>
+      </motion.div>
+    </>
   );
 };
 
