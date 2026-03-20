@@ -241,13 +241,14 @@ const HeroSection = () => {
             transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] as const }}
             className="min-h-[calc(100vh-5rem)] flex items-center justify-center relative"
           >
-            {/* Branded truck background — blurred & vague */}
+            {/* Branded truck background — subtly blurred */}
             <img
-              src={bgTransportMenu}
+              src={heroTransport}
               alt=""
-              className="absolute inset-0 w-full h-full object-cover scale-110"
-              style={{ filter: "blur(12px)" }}
+              className="absolute inset-0 w-full h-full object-cover scale-105"
+              style={{ filter: "blur(4px)" }}
             />
+            <div className={`absolute inset-0 bg-navy-dark/70 ${vignette}`} />
             <div className={`absolute inset-0 bg-navy-dark/92 ${vignette}`} />
 
             <motion.div {...formReveal} className="relative z-10 w-full py-10">
