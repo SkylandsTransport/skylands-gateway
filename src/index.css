@@ -26,6 +26,10 @@
     --gold-dark: 43 85% 45%;
     --gold-muted: 43 40% 50%;
 
+    /* Success */
+    --success: 145 55% 52%;
+    --success-foreground: 145 70% 94%;
+
     /* Card & Glass */
     --card: 220 50% 14%;
     --card-foreground: 45 20% 95%;
@@ -99,14 +103,12 @@
 }
 
 @layer components {
-  /* Glassmorphic Card */
   .glass-card {
     @apply rounded-2xl border border-white/10 backdrop-blur-xl;
     background: hsl(var(--glass-bg));
     box-shadow: var(--shadow-glass);
   }
 
-  /* Premium Button Variants */
   .btn-gold {
     @apply px-8 py-4 rounded-xl font-semibold text-navy-dark transition-all duration-300;
     background: var(--gradient-gold);
@@ -128,20 +130,17 @@
     box-shadow: var(--shadow-gold);
   }
 
-  /* Premium Input */
   .input-premium {
     @apply w-full px-6 py-4 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-white/40 
            focus:outline-none focus:border-gold/50 focus:ring-2 focus:ring-gold/20 transition-all duration-300;
     backdrop-filter: blur(10px);
   }
 
-  /* Gold Accent Text */
   .text-gradient-gold {
     @apply bg-clip-text text-transparent;
     background-image: var(--gradient-gold);
   }
 
-  /* Fade In Animation */
   .animate-fade-up {
     animation: fadeUp 0.8s ease-out forwards;
   }
