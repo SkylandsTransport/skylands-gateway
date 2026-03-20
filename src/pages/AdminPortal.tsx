@@ -30,6 +30,7 @@ import {
   Copy,
   Eye,
   Fuel,
+  LoaderCircle,
   Plus,
   Save,
   Search,
@@ -51,7 +52,7 @@ import {
 
 const manualOrderSchema = z.object({
   user_id: z.string().uuid("Please select a client"),
-  service: z.enum(["Diesel", "Logistics"]),
+  service: z.enum(["Diesel", "Transport"]),
   quantity: z.string().trim().min(1, "Quantity is required").max(80, "Quantity is too long"),
   location: z.string().trim().min(3, "Location is required").max(160, "Location is too long"),
   status: z.enum(REQUEST_STATUSES),
@@ -111,6 +112,24 @@ type ProfileRow = {
 
 type SettingRow = { key: string; value: string };
 
+const getFriendlyErrorMessage = (message?: string | null) => {
+  if (!message) return "Database connection error. Please try again.";
+
+  if (message.toLowerCase().includes("violates check constraint")) {
+    return "The order status or service type is not allowed by the database yet.";
+  }
+
+  if (message.toLowerCase().includes("violates row-level security")) {
+    return "You do not have permission to create this order.";
+  }
+
+  if (message.toLowerCase().includes("foreign key")) {
+    return "The selected client record could not be linked to this order.";
+  }
+
+  return message;
+};
+
 const AdminPortal = () => {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
@@ -124,7 +143,7 @@ const AdminPortal = () => {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [clientSearch, setClientSearch] = useState("");
   const [selectedClientId, setSelectedClientId] = useState<string>("");
-  const [manualService, setManualService] = useState<"Diesel" | "Logistics">("Diesel");
+  const [manualService, setManualService] = useState<"Diesel" | "Transport">("Diesel");
   const [manualQuantity, setManualQuantity] = useState("");
   const [manualLocation, setManualLocation] = useState("");
   const [manualStatus, setManualStatus] = useState<(typeof REQUEST_STATUSES)[number]>("Order Accepted");
@@ -328,6 +347,7 @@ const AdminPortal = () => {
         order_id: "",
         user_id: parsed.data.user_id,
         service: parsed.data.service,
+        service_type: parsed.data.service,
         details,
         quantity: parsed.data.quantity,
         location: parsed.data.location,
@@ -339,7 +359,7 @@ const AdminPortal = () => {
     setCreatingOrder(false);
 
     if (error || !data) {
-      toast.error(error?.message || "Failed to create order");
+      toast.error(`Create Order failed: ${getFriendlyErrorMessage(error?.message)}`);
       return;
     }
 
@@ -810,7 +830,10 @@ const AdminPortal = () => {
                           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
                           <Input
                             value={clientSearch}
-                            onChange={(e) => setClientSearch(e.target.value)}
+                            onChange={(e) => {
+                              setClientSearch(e.target.value);
+                              setSelectedClientId("");
+                            }}
                             placeholder="Search by name or email"
                             className="h-11 border-gold/20 bg-navy-dark/80 pl-9 text-white placeholder:text-white/30"
                           />
@@ -849,13 +872,13 @@ const AdminPortal = () => {
                     <div className="grid gap-4 sm:grid-cols-2">
                       <div>
                         <Label className="text-white font-medium">Service</Label>
-                        <Select value={manualService} onValueChange={(value: "Diesel" | "Logistics") => setManualService(value)}>
+                        <Select value={manualService} onValueChange={(value: "Diesel" | "Transport") => setManualService(value)}>
                           <SelectTrigger className="mt-2 h-11 bg-navy-dark/80 border-gold/20 text-white">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent className="bg-navy-dark border-gold/20">
                             <SelectItem value="Diesel">Diesel</SelectItem>
-                            <SelectItem value="Logistics">Logistics</SelectItem>
+                            <SelectItem value="Transport">Transport</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
@@ -940,10 +963,10 @@ const AdminPortal = () => {
                       <button
                         type="button"
                         onClick={createManualOrder}
-                        disabled={creatingOrder}
+                        disabled={creatingOrder || !selectedClientId}
                         className="btn-gold w-full flex items-center justify-center gap-2 py-3 disabled:opacity-60"
                       >
-                        <Plus className="w-4 h-4" />
+                        {creatingOrder ? <LoaderCircle className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
                         {creatingOrder ? "Creating Order..." : "Create Order"}
                       </button>
 
