@@ -4,7 +4,6 @@ import { Fuel, Truck, ChevronRight } from "lucide-react";
 import heroDiesel from "@/assets/hero-diesel.jpg";
 import heroTransport from "@/assets/hero-transport.jpg";
 import DieselForm from "./hero/DieselForm";
-import DieselForm from "./hero/DieselForm";
 import TransportForm from "./hero/TransportForm";
 
 type View = "main" | "diesel" | "transport";
