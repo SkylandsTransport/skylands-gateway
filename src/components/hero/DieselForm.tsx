@@ -54,18 +54,14 @@ const DieselForm = ({ onBack }: DieselFormProps) => {
     if (profile?.default_address) setLocation(profile.default_address);
   }, [profile]);
 
+  const customerName = profile?.full_name?.trim();
+
   const getUrl = () => {
-    const parts = [
-      `Hello Skylands Transport, I need a quote.`,
-      `Fuel: ${fuelGrade}`,
-      `Vol: ${liters || "—"}L`,
-      `Method: ${deliveryMethod}`,
-      `Schedule: ${schedule}`,
-      `Priority: ${priority}`,
-      `Location: ${location || "—"}`,
-    ];
-    if (instructions.trim()) parts.push(`Notes: ${instructions.trim()}`);
-    return `https://wa.me/${PHONE}?text=${encodeURIComponent(parts.join(", ") + ".")}`;
+    const message = customerName
+      ? `Hello Skylands Transport, my name is ${customerName}. I would like a quote for ${liters || "—"}L of ${fuelGrade}. Delivery to: ${location || "—"}.`
+      : `Hello Skylands Transport, I would like to request a quote for ${liters || "—"}L of ${fuelGrade}. Delivery to: ${location || "—"}.`;
+
+    return `https://wa.me/${PHONE}?text=${encodeURIComponent(message)}`;
   };
 
   const getDetails = () =>
