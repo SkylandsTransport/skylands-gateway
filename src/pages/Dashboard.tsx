@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -16,11 +16,14 @@ type Quote = {
 };
 
 const statusColor: Record<string, string> = {
-  "Inquiry Received": "bg-gold/20 text-gold border-gold/30",
-  "Quote Sent": "bg-blue-500/20 text-blue-300 border-blue-500/30",
-  "Processing Order": "bg-orange-500/20 text-orange-300 border-orange-500/30",
-  "Dispatched": "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
-  "Completed": "bg-green-500/20 text-green-300 border-green-500/30",
+  "Inquiry Received": "bg-secondary/50 text-foreground border-border",
+  "Processing Order": "bg-accent/10 text-accent border-accent/30",
+  "Order Approved": "bg-accent/10 text-accent border-accent/30",
+  "Vehicle Assigned": "bg-secondary text-secondary-foreground border-border",
+  "In Transit": "bg-primary/15 text-primary border-primary/30",
+  Delivered: "bg-success/15 text-success border-success/30",
+  Dispatched: "bg-primary/15 text-primary border-primary/30",
+  Completed: "bg-success/15 text-success border-success/30",
 };
 
 const Dashboard = () => {
@@ -29,22 +32,47 @@ const Dashboard = () => {
   const [quotes, setQuotes] = useState<Quote[]>([]);
   const [fetching, setFetching] = useState(true);
 
+  const loadQuotes = useCallback(async () => {
+    if (!user) return;
+
+    const { data } = await supabase
+      .from("quotes")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    setQuotes((data as Quote[]) || []);
+    setFetching(false);
+  }, [user]);
+
   useEffect(() => {
     if (!loading && !user) navigate("/auth");
   }, [loading, user, navigate]);
 
   useEffect(() => {
     if (!user) return;
-    const load = async () => {
-      const { data } = await supabase
-        .from("quotes")
-        .select("*")
-        .order("created_at", { ascending: false });
-      setQuotes((data as Quote[]) || []);
-      setFetching(false);
+
+    loadQuotes();
+
+    const channel = supabase
+      .channel(`quotes-${user.id}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "quotes",
+          filter: `user_id=eq.${user.id}`,
+        },
+        () => {
+          loadQuotes();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
     };
-    load();
-  }, [user]);
+  }, [user, loadQuotes]);
 
   if (loading) return null;
 
@@ -94,7 +122,7 @@ const Dashboard = () => {
                   </div>
                   <p className="text-muted-foreground text-sm flex-1 truncate">{q.details}</p>
                   <div className="flex items-center gap-3 shrink-0">
-                    <span className={`text-xs font-medium px-3 py-1 rounded-full border ${statusColor[q.status] || "bg-white/10 text-white/60 border-white/20"}`}>
+                    <span className={`text-xs font-medium px-3 py-1 rounded-full border ${statusColor[q.status] || "bg-secondary/40 text-foreground border-border"}`}>
                       {q.status}
                     </span>
                     <span className="text-muted-foreground text-xs">

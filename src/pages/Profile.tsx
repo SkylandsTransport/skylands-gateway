@@ -4,6 +4,18 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { ArrowLeft, Save, User } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { z } from "zod";
+
+const profileSchema = z.object({
+  fullName: z.string().trim().min(2, "Enter your full name").max(100),
+  phoneNumber: z
+    .string()
+    .trim()
+    .min(7, "Phone number is required")
+    .max(20, "Phone number is too long")
+    .regex(/^[+\d][\d\s()-]{6,19}$/, "Enter a valid phone number"),
+  defaultAddress: z.string().trim().min(5, "Enter your delivery address").max(200),
+});
 
 const Profile = () => {
   const { user, profile, refreshProfile, loading: authLoading } = useAuth();
@@ -31,14 +43,30 @@ const Profile = () => {
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
+
+    const parsedProfile = profileSchema.safeParse({
+      fullName,
+      phoneNumber,
+      defaultAddress,
+    });
+
+    if (!parsedProfile.success) {
+      toast({
+        title: "Profile update failed",
+        description: parsedProfile.error.issues[0]?.message,
+        variant: "destructive",
+      });
+      return;
+    }
+
     setSaving(true);
 
     const { error } = await supabase
       .from("profiles")
       .update({
-        full_name: fullName,
-        phone_number: phoneNumber,
-        default_address: defaultAddress,
+        full_name: parsedProfile.data.fullName,
+        phone_number: parsedProfile.data.phoneNumber,
+        default_address: parsedProfile.data.defaultAddress,
       })
       .eq("user_id", user.id);
 
@@ -75,6 +103,7 @@ const Profile = () => {
               <label className="block text-sm font-medium text-muted-foreground mb-2">Full Name</label>
               <input
                 type="text"
+                required
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
                 placeholder="e.g. Thabo Mokoena"
@@ -86,6 +115,7 @@ const Profile = () => {
               <label className="block text-sm font-medium text-muted-foreground mb-2">Phone Number</label>
               <input
                 type="tel"
+                required
                 value={phoneNumber}
                 onChange={(e) => setPhoneNumber(e.target.value)}
                 placeholder="e.g. 068 634 7810"
@@ -97,6 +127,7 @@ const Profile = () => {
               <label className="block text-sm font-medium text-muted-foreground mb-2">Default Delivery Address</label>
               <input
                 type="text"
+                required
                 value={defaultAddress}
                 onChange={(e) => setDefaultAddress(e.target.value)}
                 placeholder="e.g. 123 Main Rd, Sandton, Gauteng"

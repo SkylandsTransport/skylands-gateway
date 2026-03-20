@@ -33,6 +33,10 @@ export default {
           dark: "hsl(var(--gold-dark))",
           muted: "hsl(var(--gold-muted))",
         },
+        success: {
+          DEFAULT: "hsl(var(--success))",
+          foreground: "hsl(var(--success-foreground))",
+        },
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
