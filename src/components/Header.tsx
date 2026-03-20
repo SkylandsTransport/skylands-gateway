@@ -53,30 +53,24 @@ const Header = () => {
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-8">
             <a
-              href="#services"
-              className="text-white/70 hover:text-gold transition-colors duration-300 font-medium"
-            >
-              Services
-            </a>
-            <a
               href="#about"
               className="text-white/70 hover:text-gold transition-colors duration-300 font-medium"
+              onClick={(e) => {
+                e.preventDefault();
+                document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' });
+              }}
             >
               About
             </a>
             <a
               href="#contact"
               className="text-white/70 hover:text-gold transition-colors duration-300 font-medium"
+              onClick={(e) => {
+                e.preventDefault();
+                document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
+              }}
             >
               Contact
-            </a>
-            <a
-              href={`https://wa.me/27686347810?text=${encodeURIComponent("Hello Skylands Transport, I would like to inquire about your services. Specifically, I want to know ")}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-white/70 hover:text-gold transition-colors duration-300 font-medium"
-            >
-              Inquiry
             </a>
 
             {user ? (
@@ -129,30 +123,26 @@ const Header = () => {
           <nav className="md:hidden mt-4 pb-4 border-t border-gold/10 pt-4 animate-fade-up">
             <div className="flex flex-col gap-4">
               <a
-                href="#services"
-                className="text-white/70 hover:text-gold transition-colors duration-300 font-medium py-2"
-              >
-                Services
-              </a>
-              <a
                 href="#about"
                 className="text-white/70 hover:text-gold transition-colors duration-300 font-medium py-2"
+                onClick={(e) => {
+                  e.preventDefault();
+                  document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' });
+                  setIsMobileMenuOpen(false);
+                }}
               >
                 About
               </a>
               <a
                 href="#contact"
                 className="text-white/70 hover:text-gold transition-colors duration-300 font-medium py-2"
+                onClick={(e) => {
+                  e.preventDefault();
+                  document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
+                  setIsMobileMenuOpen(false);
+                }}
               >
                 Contact
-              </a>
-              <a
-                href={`https://wa.me/27686347810?text=${encodeURIComponent("Hello Skylands Transport, I would like to inquire about your services. Specifically, I want to know ")}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-white/70 hover:text-gold transition-colors duration-300 font-medium py-2"
-              >
-                Inquiry
               </a>
 
               {user ? (
