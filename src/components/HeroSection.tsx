@@ -259,7 +259,7 @@ const HeroSection = ({ onViewChange }: HeroSectionProps) => {
             <div className={`absolute inset-0 bg-navy-dark/92 ${vignette}`} />
 
             <motion.div {...formReveal} className="relative z-10 w-full py-10">
-              <TransportForm onBack={() => setView("main")} />
+              <TransportForm onBack={() => changeView("main")} />
             </motion.div>
           </motion.div>
         )}
