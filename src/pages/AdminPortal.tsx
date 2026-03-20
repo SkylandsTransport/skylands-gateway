@@ -44,9 +44,11 @@ import { z } from "zod";
 import {
   ADMIN_EMAIL,
   buildManualOrderDetails,
+  groupOrdersByDeliveryPriority,
   LIVE_ORDER_FLOW,
   normalizeLiveStatus,
   REQUEST_STATUSES,
+  sortOrdersByDeliveryPriority,
 } from "@/lib/orders";
 
 const manualOrderSchema = z.object({
@@ -176,7 +178,7 @@ const AdminPortal = () => {
       settingsMap[setting.key] = setting.value;
     });
 
-    setQuotes(enrichedQuotes);
+    setQuotes(sortOrdersByDeliveryPriority(enrichedQuotes));
     setOrderDrafts(
       enrichedQuotes.reduce<Record<string, { details: string; quantity: string; location: string }>>((acc, quote) => {
         acc[quote.id] = {
@@ -251,8 +253,12 @@ const AdminPortal = () => {
 
   const selectedClient = profiles.find((profile) => profile.user_id === selectedClientId) || null;
 
+  const groupedQuotes = useMemo(() => groupOrdersByDeliveryPriority(quotes), [quotes]);
+
   const syncQuoteLocally = (quoteId: string, changes: Partial<QuoteRow>) => {
-    setQuotes((prev) => prev.map((quote) => (quote.id === quoteId ? { ...quote, ...changes } : quote)));
+    setQuotes((prev) =>
+      sortOrdersByDeliveryPriority(prev.map((quote) => (quote.id === quoteId ? { ...quote, ...changes } : quote)))
+    );
     setOrderDrafts((prev) => ({
       ...prev,
       [quoteId]: {
@@ -399,7 +405,7 @@ const AdminPortal = () => {
       customer_email: matchedProfile?.email || "—",
     };
 
-    setQuotes((prev) => [nextQuote, ...prev]);
+    setQuotes((prev) => sortOrdersByDeliveryPriority([nextQuote, ...prev]));
     setOrderDrafts((prev) => ({
       ...prev,
       [nextQuote.id]: {
@@ -528,7 +534,7 @@ const AdminPortal = () => {
                     <ClipboardList className="w-5 h-5 text-gold" />
                     Master Order Manager
                   </h2>
-                  <p className="text-white/40 text-sm mt-1">All client and manual orders in one live queue, newest first.</p>
+                  <p className="text-white/40 text-sm mt-1">Active orders stay on top, while completed deliveries are grouped below.</p>
                 </div>
                 <div className="overflow-x-auto">
                   <Table>
@@ -552,7 +558,124 @@ const AdminPortal = () => {
                           </TableCell>
                         </TableRow>
                       ) : (
-                        quotes.map((quote) => (
+                        [...groupedQuotes.active, ...groupedQuotes.completed].map((quote, index) => (
+                          quote.status === "Delivered" && index === groupedQuotes.active.length ? (
+                            <>
+                              <TableRow key="completed-divider" className="border-gold/10 hover:bg-transparent">
+                                <TableCell colSpan={8} className="py-3">
+                                  <div className="flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.24em] text-white/45">
+                                    <span>Completed Deliveries</span>
+                                    <div className="h-px flex-1 bg-gold/10" />
+                                  </div>
+                                </TableCell>
+                              </TableRow>
+                              <TableRow key={quote.id} className="border-gold/5 hover:bg-gold/5">
+                                <TableCell>
+                                  <span className="inline-flex rounded-full border border-gold/20 bg-gold/10 px-3 py-1 text-[11px] font-semibold tracking-[0.16em] text-gold">
+                                    {quote.order_id}
+                                  </span>
+                                </TableCell>
+                                <TableCell>
+                                  <div className="space-y-1">
+                                    <p className="text-white font-medium">{quote.customer_name}</p>
+                                    <p className="text-white/50 text-xs">{quote.customer_phone}</p>
+                                    <p className="text-white/40 text-xs">{quote.customer_email}</p>
+                                  </div>
+                                </TableCell>
+                                <TableCell>
+                                  <span className="flex items-center gap-1.5 text-white/80">
+                                    {quote.service === "Diesel" ? (
+                                      <Fuel className="w-3.5 h-3.5 text-gold" />
+                                    ) : (
+                                      <Truck className="w-3.5 h-3.5 text-gold" />
+                                    )}
+                                    {quote.service}
+                                  </span>
+                                </TableCell>
+                                <TableCell className="min-w-[300px]">
+                                  <div className="space-y-2">
+                                    <Input
+                                      value={orderDrafts[quote.id]?.quantity ?? quote.quantity}
+                                      onChange={(e) => updateOrderDraft(quote.id, "quantity", e.target.value)}
+                                      placeholder={quote.service === "Diesel" ? "Liters" : "Weight / load"}
+                                      className="h-9 bg-navy-dark/80 border-gold/20 text-white placeholder:text-white/30"
+                                    />
+                                    <Input
+                                      value={orderDrafts[quote.id]?.location ?? quote.location}
+                                      onChange={(e) => updateOrderDraft(quote.id, "location", e.target.value)}
+                                      placeholder="Delivery location"
+                                      className="h-9 bg-navy-dark/80 border-gold/20 text-white placeholder:text-white/30"
+                                    />
+                                    <Textarea
+                                      value={orderDrafts[quote.id]?.details ?? quote.details}
+                                      onChange={(e) => updateOrderDraft(quote.id, "details", e.target.value)}
+                                      className="min-h-[78px] bg-navy-dark/80 border-gold/20 text-white placeholder:text-white/30"
+                                    />
+                                  </div>
+                                </TableCell>
+                                <TableCell className="text-white/50 text-sm whitespace-nowrap">
+                                  {new Date(quote.created_at).toLocaleString("en-ZA", {
+                                    day: "2-digit",
+                                    month: "short",
+                                    year: "numeric",
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                  })}
+                                </TableCell>
+                                <TableCell>
+                                  <div className="space-y-2">
+                                    <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-medium ${statusBadgeClass[quote.status] || "bg-secondary/50 text-foreground border-border"}`}>
+                                      {quote.status}
+                                    </span>
+                                    {quote.delivered_at && quote.status === "Delivered" && (
+                                      <p className="text-xs text-success">
+                                        Completed {new Date(quote.delivered_at).toLocaleString("en-ZA", {
+                                          day: "2-digit",
+                                          month: "short",
+                                          year: "numeric",
+                                          hour: "2-digit",
+                                          minute: "2-digit",
+                                        })}
+                                      </p>
+                                    )}
+                                  </div>
+                                </TableCell>
+                                <TableCell>
+                                  <div className="flex min-w-[220px] flex-wrap gap-2">
+                                    {quote.status === "Inquiry Received" ? (
+                                      <button
+                                        type="button"
+                                        onClick={() => updateQuoteStatus(quote.id, "Order Accepted")}
+                                        className="rounded-lg border border-gold/30 bg-gold/10 px-3 py-2 text-xs font-semibold text-gold transition-colors hover:bg-gold/20"
+                                      >
+                                        Accept Order
+                                      </button>
+                                    ) : (
+                                      getWorkflowActions(quote.status).map((status) => (
+                                        <button
+                                          key={status}
+                                          type="button"
+                                          onClick={() => updateQuoteStatus(quote.id, status)}
+                                          className={getActionButtonStyle(status, getWorkflowStatus(quote.status))}
+                                        >
+                                          {status}
+                                        </button>
+                                      ))
+                                    )}
+                                  </div>
+                                </TableCell>
+                                <TableCell>
+                                  <button
+                                    onClick={() => saveOrderEdits(quote.id)}
+                                    className="inline-flex items-center gap-2 rounded-xl border border-gold/20 bg-gold/10 px-3 py-2 text-xs font-semibold text-gold transition-colors hover:bg-gold/20"
+                                  >
+                                    <Save className="w-4 h-4" />
+                                    Save
+                                  </button>
+                                </TableCell>
+                              </TableRow>
+                            </>
+                          ) : (
                           <TableRow key={quote.id} className="border-gold/5 hover:bg-gold/5">
                             <TableCell>
                               <span className="inline-flex rounded-full border border-gold/20 bg-gold/10 px-3 py-1 text-[11px] font-semibold tracking-[0.16em] text-gold">
@@ -658,6 +781,7 @@ const AdminPortal = () => {
                               </button>
                             </TableCell>
                           </TableRow>
+                          )
                         ))
                       )}
                     </TableBody>

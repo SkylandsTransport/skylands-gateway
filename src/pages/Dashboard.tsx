@@ -1,11 +1,13 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { Separator } from "@/components/ui/separator";
 import heroDiesel from "@/assets/hero-diesel.jpg";
 import { ClipboardList, Fuel, Truck, ArrowLeft, CircleCheckBig } from "lucide-react";
+import { groupOrdersByDeliveryPriority, sortOrdersByDeliveryPriority } from "@/lib/orders";
 
 type Quote = {
   id: string;
@@ -45,9 +47,11 @@ const Dashboard = () => {
       .select("*")
       .order("created_at", { ascending: false });
 
-    setQuotes((data as Quote[]) || []);
+    setQuotes(sortOrdersByDeliveryPriority((data as Quote[]) || []));
     setFetching(false);
   }, [user]);
+
+  const groupedQuotes = useMemo(() => groupOrdersByDeliveryPriority(quotes), [quotes]);
 
   useEffect(() => {
     if (!loading && !user) navigate("/auth");
@@ -115,7 +119,7 @@ const Dashboard = () => {
             </div>
           ) : (
             <div className="space-y-4">
-              {quotes.map((q) => (
+              {groupedQuotes.active.map((q) => (
                 <div
                   key={q.id}
                   className={`glass-card p-5 border flex flex-col gap-4 transition-colors sm:flex-row sm:items-center ${
@@ -169,6 +173,70 @@ const Dashboard = () => {
                   </div>
                 </div>
               ))}
+
+              {groupedQuotes.completed.length > 0 && (
+                <div className="space-y-3 pt-2">
+                  <div className="flex items-center gap-3">
+                    <p className="text-xs font-semibold uppercase tracking-[0.24em] text-white/45">Completed Deliveries</p>
+                    <Separator className="bg-white/10" />
+                  </div>
+
+                  {groupedQuotes.completed.map((q) => (
+                    <div
+                      key={q.id}
+                      className={`glass-card p-5 border flex flex-col gap-4 transition-colors sm:flex-row sm:items-center ${
+                        q.status === "Delivered"
+                          ? "border-success/40 bg-success/10 shadow-[0_0_0_1px_hsl(var(--success)/0.08),0_24px_60px_hsl(var(--success)/0.12)]"
+                          : "border-white/5"
+                      }`}
+                    >
+                      <div className="flex flex-col gap-2 shrink-0 min-w-[132px]">
+                        <span className="inline-flex w-fit rounded-full border border-gold/20 bg-gold/10 px-3 py-1 text-[11px] font-semibold tracking-[0.18em] text-gold">
+                          {q.order_id}
+                        </span>
+                        <div className="flex items-center gap-3 shrink-0">
+                          {q.service === "Diesel" ? (
+                            <Fuel className="w-5 h-5 text-gold" />
+                          ) : (
+                            <Truck className="w-5 h-5 text-gold" />
+                          )}
+                          <span className="text-foreground font-semibold">{q.service}</span>
+                        </div>
+                      </div>
+                      <div className="flex-1 min-w-0 space-y-1">
+                        <p className="text-muted-foreground text-sm truncate">{q.details}</p>
+                        {(q.quantity || q.location) && (
+                          <p className="text-xs text-white/45 truncate">
+                            {[q.quantity, q.location].filter(Boolean).join(" • ")}
+                          </p>
+                        )}
+                        {q.status === "Delivered" && q.delivered_at && (
+                          <p className="text-xs text-success">
+                            Completed {new Date(q.delivered_at).toLocaleString("en-ZA", {
+                              day: "2-digit",
+                              month: "short",
+                              year: "numeric",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })}
+                          </p>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-3 shrink-0">
+                        <span
+                          className={`inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1 rounded-full border ${statusColor[q.status] || "bg-secondary/40 text-foreground border-border"}`}
+                        >
+                          {q.status === "Delivered" && <CircleCheckBig className="h-3.5 w-3.5" />}
+                          {q.status}
+                        </span>
+                        <span className="text-muted-foreground text-xs">
+                          {new Date(q.created_at).toLocaleDateString("en-ZA")}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </div>
