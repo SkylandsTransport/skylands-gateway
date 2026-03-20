@@ -49,7 +49,9 @@ const Footer = () => {
                 </div>
                 <div>
                   <p className="text-white/40 text-sm">Call Us</p>
-                  <p className="text-white font-medium text-lg">+1 (800) SKYLANDS</p>
+                  <a href="tel:0686347810" className="text-white font-medium text-lg hover:text-gold transition-colors">
+                    068 634 7810
+                  </a>
                 </div>
               </div>
 
@@ -59,7 +61,9 @@ const Footer = () => {
                 </div>
                 <div>
                   <p className="text-white/40 text-sm">Email Us</p>
-                  <p className="text-white font-medium text-lg">info@skylandstransport.com</p>
+                  <a href="mailto:info@skylandstransport.co.za" className="text-white font-medium text-lg hover:text-gold transition-colors">
+                    info@skylandstransport.co.za
+                  </a>
                 </div>
               </div>
 
@@ -69,7 +73,7 @@ const Footer = () => {
                 </div>
                 <div>
                   <p className="text-white/40 text-sm">Headquarters</p>
-                  <p className="text-white font-medium text-lg">1000 Skylands Boulevard, Suite 500</p>
+                  <p className="text-white font-medium text-lg">Gauteng Province</p>
                 </div>
               </div>
             </div>
