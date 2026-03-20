@@ -158,6 +158,12 @@ const Header = () => {
               {user ? (
                 <>
                   <button
+                    onClick={() => { navigate("/dashboard"); setIsMobileMenuOpen(false); }}
+                    className="text-white/70 hover:text-gold transition-colors duration-300 font-medium py-2 text-left flex items-center gap-2"
+                  >
+                    <ClipboardList className="w-4 h-4" /> My Requests
+                  </button>
+                  <button
                     onClick={() => { navigate("/profile"); setIsMobileMenuOpen(false); }}
                     className="text-gold hover:text-gold-light transition-colors duration-300 font-medium py-2 text-left flex items-center gap-2"
                   >
