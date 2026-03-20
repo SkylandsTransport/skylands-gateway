@@ -70,6 +70,14 @@ const Header = () => {
             >
               Contact
             </a>
+            <a
+              href={`https://wa.me/27686347810?text=${encodeURIComponent("Hello Skylands Transport, I would like to inquire about your services. Specifically, I want to know ")}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-white/70 hover:text-gold transition-colors duration-300 font-medium"
+            >
+              Inquiry
+            </a>
 
             {user ? (
               <div className="flex items-center gap-4">
