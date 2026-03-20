@@ -146,13 +146,15 @@ const HeroSection = ({ onViewChange, maintenanceFlags }: HeroSectionProps) => {
                   </motion.div>
 
                   <div className="btn-gold text-xl sm:text-2xl py-5 px-8 sm:px-10 flex items-center gap-3 group-hover:shadow-[0_0_50px_hsl(43_80%_55%/0.4)] transition-shadow duration-500">
-                    Diesel Deliveries
-                    <ChevronRight className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" />
+                    {maintenanceFlags?.diesel_maintenance ? "Temporarily Unavailable" : "Diesel Deliveries"}
+                    {!maintenanceFlags?.diesel_maintenance && <ChevronRight className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" />}
                   </div>
 
-                  <span className="text-xs text-muted-foreground/70 tracking-wide uppercase">
-                    Bulk &middot; Bowser &middot; Direct
-                  </span>
+                  {!maintenanceFlags?.diesel_maintenance && (
+                    <span className="text-xs text-muted-foreground/70 tracking-wide uppercase">
+                      Bulk &middot; Bowser &middot; Direct
+                    </span>
+                  )}
                 </div>
               </motion.button>
 
