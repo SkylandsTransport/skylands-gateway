@@ -560,7 +560,7 @@ const AdminPortal = () => {
                       ) : (
                         [...groupedQuotes.active, ...groupedQuotes.completed].map((quote, index) => (
                           quote.status === "Delivered" && index === groupedQuotes.active.length ? (
-                            <>
+                            <div key={`completed-group-${quote.id}`} className="contents">
                               <TableRow key="completed-divider" className="border-gold/10 hover:bg-transparent">
                                 <TableCell colSpan={8} className="py-3">
                                   <div className="flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.24em] text-white/45">
@@ -642,26 +642,16 @@ const AdminPortal = () => {
                                 </TableCell>
                                 <TableCell>
                                   <div className="flex min-w-[220px] flex-wrap gap-2">
-                                    {quote.status === "Inquiry Received" ? (
+                                    {getWorkflowActions(quote.status).map((status) => (
                                       <button
+                                        key={status}
                                         type="button"
-                                        onClick={() => updateQuoteStatus(quote.id, "Order Accepted")}
-                                        className="rounded-lg border border-gold/30 bg-gold/10 px-3 py-2 text-xs font-semibold text-gold transition-colors hover:bg-gold/20"
+                                        onClick={() => updateQuoteStatus(quote.id, status)}
+                                        className={getActionButtonStyle(status, getWorkflowStatus(quote.status))}
                                       >
-                                        Accept Order
+                                        {status}
                                       </button>
-                                    ) : (
-                                      getWorkflowActions(quote.status).map((status) => (
-                                        <button
-                                          key={status}
-                                          type="button"
-                                          onClick={() => updateQuoteStatus(quote.id, status)}
-                                          className={getActionButtonStyle(status, getWorkflowStatus(quote.status))}
-                                        >
-                                          {status}
-                                        </button>
-                                      ))
-                                    )}
+                                    ))}
                                   </div>
                                 </TableCell>
                                 <TableCell>
@@ -674,7 +664,7 @@ const AdminPortal = () => {
                                   </button>
                                 </TableCell>
                               </TableRow>
-                            </>
+                            </div>
                           ) : (
                           <TableRow key={quote.id} className="border-gold/5 hover:bg-gold/5">
                             <TableCell>
