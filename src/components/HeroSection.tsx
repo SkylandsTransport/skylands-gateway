@@ -45,12 +45,13 @@ const HeroSection = () => {
 
   const getDieselUrl = () => {
     const speedLabel = DELIVERY_OPTIONS.find(o => o.value === deliverySpeed)?.label ?? deliverySpeed;
-    const msg = `Hello Skylands Transport, I need a diesel quote.\n\nName: ${dieselName}\nLiters: ${dieselLiters}\nDelivery Speed: ${speedLabel}${specialInstructions ? `\nSpecial Instructions: ${specialInstructions}` : ""}`;
+    const location = profile?.default_address ?? "";
+    const msg = `Hello Skylands Transport, I would like a diesel quote.\n\nName: ${dieselName}\nVolume: ${dieselLiters}L\nPriority: ${speedLabel}\nLocation: ${location}${specialInstructions ? `\nSpecial Instructions: ${specialInstructions}` : ""}`;
     return `https://wa.me/${PHONE}?text=${encodeURIComponent(msg)}`;
   };
 
   const getTransportUrl = () => {
-    const msg = `Hello Skylands Transport, I need a logistics quote.\n\nName: ${transportName}\nCargo: ${cargoType}\nPickup: ${pickupLocation}\nDestination: ${destination}\nDistance: ${kilometers} km`;
+    const msg = `Hello Skylands Transport, I would like a logistics quote.\n\nName: ${transportName}\nCargo: ${cargoType}\nPickup: ${pickupLocation}\nDestination: ${destination}\nDistance: ${kilometers} km`;
     return `https://wa.me/${PHONE}?text=${encodeURIComponent(msg)}`;
   };
 
