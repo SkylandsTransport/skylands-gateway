@@ -42,9 +42,13 @@ const formReveal = {
 
 interface HeroSectionProps {
   onViewChange?: (view: View) => void;
+  maintenanceFlags?: {
+    diesel_maintenance: boolean;
+    logistics_maintenance: boolean;
+  };
 }
 
-const HeroSection = ({ onViewChange }: HeroSectionProps) => {
+const HeroSection = ({ onViewChange, maintenanceFlags }: HeroSectionProps) => {
   const [view, setView] = useState<View>("main");
   const [hovered, setHovered] = useState<"left" | "right" | null>(null);
   const sectionRef = useRef<HTMLElement>(null);
