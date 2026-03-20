@@ -3,8 +3,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Fuel, Truck, ChevronRight } from "lucide-react";
 import heroDiesel from "@/assets/hero-diesel.jpg";
 import heroTransport from "@/assets/hero-transport.jpg";
-import bgDieselMenu from "@/assets/bg-diesel-menu.jpg";
-import bgTransportMenu from "@/assets/bg-transport-menu.jpg";
+import DieselForm from "./hero/DieselForm";
 import DieselForm from "./hero/DieselForm";
 import TransportForm from "./hero/TransportForm";
 
