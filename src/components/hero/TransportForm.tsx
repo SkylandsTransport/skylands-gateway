@@ -5,9 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import QuoteModal from "@/components/QuoteModal";
 import { useNavigate } from "react-router-dom";
-import { writePendingQuote } from "@/lib/orders";
-
-const PHONE = "27686347810";
+import { buildWhatsAppQuoteUrl, writePendingQuote } from "@/lib/orders";
 
 const SERVICE_TYPES = [
   { value: "FTL", label: "Full Truck Load (FTL)" },
@@ -39,6 +37,7 @@ const TransportForm = ({ onBack }: TransportFormProps) => {
   const [serviceType, setServiceType] = useState("FTL");
   const [loadDetail, setLoadDetail] = useState("General Cargo");
   const [weightClass, setWeightClass] = useState("Under 5 Tons");
+  const [note, setNote] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [waUrl, setWaUrl] = useState("");
 
@@ -48,16 +47,29 @@ const TransportForm = ({ onBack }: TransportFormProps) => {
 
   const customerName = profile?.full_name?.trim();
 
-  const getUrl = () => {
-    const message = customerName
-      ? `Hello Skylands Transport, my name is ${customerName}. I need a logistics quote for ${loadDetail}. Route: ${pickup || "—"} to ${dropoff || "—"}. Weight: ${weightClass}.`
-      : `Hello Skylands Transport, I would like to request a logistics quote for ${loadDetail}. Route: ${pickup || "—"} to ${dropoff || "—"}. Weight: ${weightClass}.`;
-
-    return `https://wa.me/${PHONE}?text=${encodeURIComponent(message)}`;
-  };
+  const getUrl = () =>
+    buildWhatsAppQuoteUrl(
+      {
+        service: "Transport",
+        loadDetail,
+        pickup: pickup || undefined,
+        dropoff: dropoff || undefined,
+        weightClass,
+        note: note || undefined,
+      },
+      customerName,
+    );
 
   const getDetails = () =>
-    `${serviceType}, ${loadDetail}, ${weightClass}, ${pickup || "—"} → ${dropoff || "—"}`;
+    [
+      serviceType,
+      loadDetail,
+      weightClass,
+      `${pickup || "—"} → ${dropoff || "—"}`,
+      note.trim() ? `Note: ${note.trim()}` : null,
+    ]
+      .filter(Boolean)
+      .join(", ");
 
   const handleGetQuote = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -68,9 +80,17 @@ const TransportForm = ({ onBack }: TransportFormProps) => {
       writePendingQuote({
         service: "Transport",
         details: getDetails(),
-        waUrl: url,
         quantity: weightClass || undefined,
         location: `${pickup || "—"} → ${dropoff || "—"}`,
+        note: note || undefined,
+        context: {
+          service: "Transport",
+          loadDetail,
+          pickup: pickup || undefined,
+          dropoff: dropoff || undefined,
+          weightClass,
+          note: note || undefined,
+        },
       });
       navigate(
         `/auth?message=${encodeURIComponent("Please sign in to save your request and get your custom quote.")}&redirect=${encodeURIComponent("/dashboard")}`
@@ -159,6 +179,11 @@ const TransportForm = ({ onBack }: TransportFormProps) => {
                 <label className="block text-xs font-medium text-muted-foreground mb-1.5">Drop-off Location</label>
                 <input type="text" placeholder="e.g. Durban Harbour" value={dropoff} onChange={(e) => setDropoff(e.target.value)} className="input-premium" />
               </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-muted-foreground mb-1.5">Add a Note (optional)</label>
+              <textarea rows={2} placeholder="Any additional notes…" value={note} onChange={(e) => setNote(e.target.value)} className="input-premium resize-none" />
             </div>
 
             <button

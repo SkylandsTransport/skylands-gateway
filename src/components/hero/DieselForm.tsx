@@ -5,9 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import QuoteModal from "@/components/QuoteModal";
 import { useNavigate } from "react-router-dom";
-import { writePendingQuote } from "@/lib/orders";
-
-const PHONE = "27686347810";
+import { buildWhatsAppQuoteUrl, writePendingQuote } from "@/lib/orders";
 
 const FUEL_GRADES = [
   { value: "50ppm Diesel", label: "50ppm Diesel" },
@@ -46,7 +44,7 @@ const DieselForm = ({ onBack }: DieselFormProps) => {
   const [schedule, setSchedule] = useState("Once-off");
   const [priority, setPriority] = useState("Standard");
   const [location, setLocation] = useState("");
-  const [instructions, setInstructions] = useState("");
+  const [note, setNote] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [waUrl, setWaUrl] = useState("");
 
@@ -56,16 +54,30 @@ const DieselForm = ({ onBack }: DieselFormProps) => {
 
   const customerName = profile?.full_name?.trim();
 
-  const getUrl = () => {
-    const message = customerName
-      ? `Hello Skylands Transport, my name is ${customerName}. I would like a quote for ${liters || "—"}L of ${fuelGrade}. Delivery to: ${location || "—"}.`
-      : `Hello Skylands Transport, I would like to request a quote for ${liters || "—"}L of ${fuelGrade}. Delivery to: ${location || "—"}.`;
-
-    return `https://wa.me/${PHONE}?text=${encodeURIComponent(message)}`;
-  };
+  const getUrl = () =>
+    buildWhatsAppQuoteUrl(
+      {
+        service: "Diesel",
+        liters: liters || undefined,
+        fuelGrade,
+        location: location || undefined,
+        note: note || undefined,
+      },
+      customerName,
+    );
 
   const getDetails = () =>
-    `${fuelGrade}, ${liters || "—"}L, ${deliveryMethod}, ${schedule}, ${priority}, ${location || "—"}`;
+    [
+      fuelGrade,
+      `${liters || "—"}L`,
+      deliveryMethod,
+      schedule,
+      priority,
+      location || "—",
+      note.trim() ? `Note: ${note.trim()}` : null,
+    ]
+      .filter(Boolean)
+      .join(", ");
 
   const handleGetQuote = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -76,9 +88,16 @@ const DieselForm = ({ onBack }: DieselFormProps) => {
       writePendingQuote({
         service: "Diesel",
         details: getDetails(),
-        waUrl: url,
         quantity: liters || undefined,
         location: location || undefined,
+        note: note || undefined,
+        context: {
+          service: "Diesel",
+          liters: liters || undefined,
+          fuelGrade,
+          location: location || undefined,
+          note: note || undefined,
+        },
       });
       navigate(
         `/auth?message=${encodeURIComponent("Please sign in to save your request and get your custom quote.")}&redirect=${encodeURIComponent("/dashboard")}`
@@ -179,8 +198,8 @@ const DieselForm = ({ onBack }: DieselFormProps) => {
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-muted-foreground mb-1.5">Special Instructions (optional)</label>
-              <textarea rows={2} placeholder="Any additional notes…" value={instructions} onChange={(e) => setInstructions(e.target.value)} className="input-premium resize-none" />
+              <label className="block text-xs font-medium text-muted-foreground mb-1.5">Add a Note (optional)</label>
+              <textarea rows={2} placeholder="Any additional notes…" value={note} onChange={(e) => setNote(e.target.value)} className="input-premium resize-none" />
             </div>
 
             <button
