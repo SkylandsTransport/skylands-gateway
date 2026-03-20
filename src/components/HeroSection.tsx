@@ -21,7 +21,7 @@ const panelRight = {
   exit: { x: "100%", opacity: 0 },
 };
 
-const springy = { duration: 0.7, ease: [0.22, 1, 0.36, 1] };
+const springy = { duration: 0.7, ease: [0.22, 1, 0.36, 1] as const };
 
 const takeoverFromLeft = {
   initial: { clipPath: "inset(0 50% 0 0)" },
