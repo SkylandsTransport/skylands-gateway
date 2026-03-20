@@ -5,7 +5,7 @@ import { ArrowLeft, LogIn, Phone, UserPlus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { z } from "zod";
-import { ADMIN_EMAIL, clearPendingQuote, readPendingQuote } from "@/lib/orders";
+import { ADMIN_EMAIL, buildWhatsAppQuoteUrl, clearPendingQuote, readPendingQuote } from "@/lib/orders";
 
 const emailSchema = z.string().trim().email("Enter a valid email address").max(255);
 const phoneSchema = z
@@ -50,6 +50,17 @@ const Auth = () => {
     const pendingQuote = readPendingQuote();
     if (!pendingQuote) return;
 
+    const { data: profileData, error: profileError } = await supabase
+      .from("profiles")
+      .select("full_name")
+      .eq("user_id", userId)
+      .maybeSingle();
+
+    if (profileError) {
+      toast({ title: "Profile check failed", description: profileError.message, variant: "destructive" });
+      return;
+    }
+
     const { error } = await supabase.from("quotes").insert({
       order_id: "",
       user_id: userId,
@@ -65,9 +76,10 @@ const Auth = () => {
     }
 
     clearPendingQuote();
-    const popup = window.open(pendingQuote.waUrl, "_blank", "noopener,noreferrer");
+    const whatsAppUrl = buildWhatsAppQuoteUrl(pendingQuote.context, profileData?.full_name);
+    const popup = window.open(whatsAppUrl, "_blank", "noopener,noreferrer");
     if (!popup) {
-      window.location.href = pendingQuote.waUrl;
+      window.location.href = whatsAppUrl;
       return;
     }
 
