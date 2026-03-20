@@ -56,6 +56,7 @@ export type Database = {
           order_id: string
           quantity: string | null
           service: string
+          service_type: string | null
           status: string
           user_id: string
         }
@@ -67,6 +68,7 @@ export type Database = {
           order_id: string
           quantity?: string | null
           service: string
+          service_type?: string | null
           status?: string
           user_id: string
         }
@@ -78,10 +80,19 @@ export type Database = {
           order_id?: string
           quantity?: string | null
           service?: string
+          service_type?: string | null
           status?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "quotes_user_id_profiles_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
       }
       site_settings: {
         Row: {
