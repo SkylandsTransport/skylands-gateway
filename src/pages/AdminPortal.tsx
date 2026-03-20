@@ -22,7 +22,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ClipboardList, Settings, Users, ArrowLeft, Fuel, Truck, Search, Save, Copy, Check } from "lucide-react";
+import { ClipboardList, Settings, Users, ArrowLeft, Fuel, Truck, Search, Save, Copy, Check, Eye } from "lucide-react";
 import { toast } from "sonner";
 import heroDiesel from "@/assets/hero-diesel.jpg";
 
