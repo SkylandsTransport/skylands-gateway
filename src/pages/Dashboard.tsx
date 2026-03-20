@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import heroDiesel from "@/assets/hero-diesel.jpg";
-import { ClipboardList, Fuel, Truck, ArrowLeft } from "lucide-react";
+import { ClipboardList, Fuel, Truck, ArrowLeft, CircleCheckBig } from "lucide-react";
 
 type Quote = {
   id: string;
@@ -16,6 +16,7 @@ type Quote = {
   location?: string | null;
   status: string;
   created_at: string;
+  delivered_at?: string | null;
 };
 
 const statusColor: Record<string, string> = {
@@ -115,7 +116,14 @@ const Dashboard = () => {
           ) : (
             <div className="space-y-4">
               {quotes.map((q) => (
-                <div key={q.id} className="glass-card p-5 border border-white/5 flex flex-col sm:flex-row sm:items-center gap-4">
+                <div
+                  key={q.id}
+                  className={`glass-card p-5 border flex flex-col gap-4 transition-colors sm:flex-row sm:items-center ${
+                    q.status === "Delivered"
+                      ? "border-success/40 bg-success/10 shadow-[0_0_0_1px_hsl(var(--success)/0.08),0_24px_60px_hsl(var(--success)/0.12)]"
+                      : "border-white/5"
+                  }`}
+                >
                   <div className="flex flex-col gap-2 shrink-0 min-w-[132px]">
                     <span className="inline-flex w-fit rounded-full border border-gold/20 bg-gold/10 px-3 py-1 text-[11px] font-semibold tracking-[0.18em] text-gold">
                       {q.order_id}
@@ -136,9 +144,23 @@ const Dashboard = () => {
                         {[q.quantity, q.location].filter(Boolean).join(" • ")}
                       </p>
                     )}
+                    {q.status === "Delivered" && q.delivered_at && (
+                      <p className="text-xs text-success">
+                        Completed {new Date(q.delivered_at).toLocaleString("en-ZA", {
+                          day: "2-digit",
+                          month: "short",
+                          year: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </p>
+                    )}
                   </div>
                   <div className="flex items-center gap-3 shrink-0">
-                    <span className={`text-xs font-medium px-3 py-1 rounded-full border ${statusColor[q.status] || "bg-secondary/40 text-foreground border-border"}`}>
+                    <span
+                      className={`inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1 rounded-full border ${statusColor[q.status] || "bg-secondary/40 text-foreground border-border"}`}
+                    >
+                      {q.status === "Delivered" && <CircleCheckBig className="h-3.5 w-3.5" />}
                       {q.status}
                     </span>
                     <span className="text-muted-foreground text-xs">
