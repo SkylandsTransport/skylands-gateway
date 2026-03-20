@@ -4,6 +4,8 @@ import { Truck, ArrowRight, ArrowLeft } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import QuoteModal from "@/components/QuoteModal";
+import { useNavigate } from "react-router-dom";
+import { writePendingQuote } from "@/lib/orders";
 
 const PHONE = "27686347810";
 
@@ -31,6 +33,7 @@ interface TransportFormProps {
 
 const TransportForm = ({ onBack }: TransportFormProps) => {
   const { user, profile } = useAuth();
+  const navigate = useNavigate();
   const [pickup, setPickup] = useState("");
   const [dropoff, setDropoff] = useState("");
   const [serviceType, setServiceType] = useState("FTL");
@@ -56,13 +59,28 @@ const TransportForm = ({ onBack }: TransportFormProps) => {
     const url = getUrl();
     setWaUrl(url);
 
-    if (user) {
-      await supabase.from("quotes").insert({
-        user_id: user.id,
+    if (!user) {
+      writePendingQuote({
         service: "Transport",
         details: getDetails(),
+        waUrl: url,
+        quantity: weightClass || undefined,
+        location: `${pickup || "—"} → ${dropoff || "—"}`,
       });
+      navigate(
+        `/auth?message=${encodeURIComponent("Please sign in to save your request and get your custom quote.")}&redirect=${encodeURIComponent("/dashboard")}`
+      );
+      return;
     }
+
+    await supabase.from("quotes").insert({
+      order_id: "",
+      user_id: user.id,
+      service: "Transport",
+      details: getDetails(),
+      quantity: weightClass || undefined,
+      location: `${pickup || "—"} → ${dropoff || "—"}`,
+    });
 
     setShowModal(true);
   };

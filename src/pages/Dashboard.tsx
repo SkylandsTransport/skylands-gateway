@@ -9,8 +9,11 @@ import { ClipboardList, Fuel, Truck, ArrowLeft } from "lucide-react";
 
 type Quote = {
   id: string;
+  order_id: string;
   service: string;
   details: string;
+  quantity?: string | null;
+  location?: string | null;
   status: string;
   created_at: string;
 };
@@ -19,6 +22,7 @@ const statusColor: Record<string, string> = {
   "Inquiry Received": "bg-secondary/50 text-foreground border-border",
   "Processing Order": "bg-accent/10 text-accent border-accent/30",
   "Order Approved": "bg-accent/10 text-accent border-accent/30",
+  "Order Accepted": "bg-accent/10 text-accent border-accent/30",
   "Vehicle Assigned": "bg-secondary text-secondary-foreground border-border",
   "In Transit": "bg-primary/15 text-primary border-primary/30",
   Delivered: "bg-success/15 text-success border-success/30",
@@ -112,15 +116,27 @@ const Dashboard = () => {
             <div className="space-y-4">
               {quotes.map((q) => (
                 <div key={q.id} className="glass-card p-5 border border-white/5 flex flex-col sm:flex-row sm:items-center gap-4">
-                  <div className="flex items-center gap-3 shrink-0">
-                    {q.service === "Diesel" ? (
-                      <Fuel className="w-5 h-5 text-gold" />
-                    ) : (
-                      <Truck className="w-5 h-5 text-gold" />
-                    )}
-                    <span className="text-foreground font-semibold">{q.service}</span>
+                  <div className="flex flex-col gap-2 shrink-0 min-w-[132px]">
+                    <span className="inline-flex w-fit rounded-full border border-gold/20 bg-gold/10 px-3 py-1 text-[11px] font-semibold tracking-[0.18em] text-gold">
+                      {q.order_id}
+                    </span>
+                    <div className="flex items-center gap-3 shrink-0">
+                      {q.service === "Diesel" ? (
+                        <Fuel className="w-5 h-5 text-gold" />
+                      ) : (
+                        <Truck className="w-5 h-5 text-gold" />
+                      )}
+                      <span className="text-foreground font-semibold">{q.service}</span>
+                    </div>
                   </div>
-                  <p className="text-muted-foreground text-sm flex-1 truncate">{q.details}</p>
+                  <div className="flex-1 min-w-0 space-y-1">
+                    <p className="text-muted-foreground text-sm truncate">{q.details}</p>
+                    {(q.quantity || q.location) && (
+                      <p className="text-xs text-white/45 truncate">
+                        {[q.quantity, q.location].filter(Boolean).join(" • ")}
+                      </p>
+                    )}
+                  </div>
                   <div className="flex items-center gap-3 shrink-0">
                     <span className={`text-xs font-medium px-3 py-1 rounded-full border ${statusColor[q.status] || "bg-secondary/40 text-foreground border-border"}`}>
                       {q.status}
