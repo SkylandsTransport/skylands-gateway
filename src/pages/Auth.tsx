@@ -65,17 +65,30 @@ const Auth = () => {
 
           <form onSubmit={handleSubmit} className="space-y-5">
             {!isLogin && (
-              <div>
-                <label className="block text-sm font-medium text-muted-foreground mb-2">Full Name</label>
-                <input
-                  type="text"
-                  required
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  placeholder="e.g. Thabo Mokoena"
-                  className="input-premium"
-                />
-              </div>
+              <>
+                <div>
+                  <label className="block text-sm font-medium text-muted-foreground mb-2">Full Name</label>
+                  <input
+                    type="text"
+                    required
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    placeholder="e.g. Thabo Mokoena"
+                    className="input-premium"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-muted-foreground mb-2">Primary Delivery Address</label>
+                  <input
+                    type="text"
+                    required
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
+                    placeholder="e.g. 12 Main Rd, Sandton, Johannesburg"
+                    className="input-premium"
+                  />
+                </div>
+              </>
             )}
 
             <div>

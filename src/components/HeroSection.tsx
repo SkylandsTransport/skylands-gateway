@@ -51,7 +51,7 @@ const HeroSection = () => {
   };
 
   const getTransportUrl = () => {
-    const msg = `Hello Skylands Transport, I need a logistics quote.\n\nName: ${transportName}\nCargo: ${cargoType}\nPickup: ${pickupLocation}\nDestination: ${destination}\nDistance: ${kilometers} km`;
+    const msg = `Hello Skylands Transport, I would like a logistics quote.\n\nName: ${transportName}\nCargo: ${cargoType}\nPickup: ${pickupLocation}\nDestination: ${destination}\nDistance: ${kilometers} km`;
     return `https://wa.me/${PHONE}?text=${encodeURIComponent(msg)}`;
   };
 
