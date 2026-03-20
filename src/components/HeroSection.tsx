@@ -49,6 +49,11 @@ const HeroSection = ({ onViewChange }: HeroSectionProps) => {
   const [hovered, setHovered] = useState<"left" | "right" | null>(null);
   const sectionRef = useRef<HTMLElement>(null);
 
+  const changeView = (v: View) => {
+    setView(v);
+    onViewChange?.(v);
+  };
+
   /* Vignette style shared across panels */
   const vignette =
     "shadow-[inset_0_0_120px_40px_hsl(220_60%_6%/0.7)]";
