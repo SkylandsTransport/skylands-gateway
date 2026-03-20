@@ -235,7 +235,7 @@ const HeroSection = ({ onViewChange }: HeroSectionProps) => {
             <div className={`absolute inset-0 bg-navy-dark/70 ${vignette}`} />
 
             <motion.div {...formReveal} className="relative z-10 w-full py-10">
-              <DieselForm onBack={() => setView("main")} />
+              <DieselForm onBack={() => changeView("main")} />
             </motion.div>
           </motion.div>
         )}
