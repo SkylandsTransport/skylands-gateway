@@ -52,6 +52,9 @@ export type Database = {
           created_at: string
           details: string
           id: string
+          location: string | null
+          order_id: string
+          quantity: string | null
           service: string
           status: string
           user_id: string
@@ -60,6 +63,9 @@ export type Database = {
           created_at?: string
           details: string
           id?: string
+          location?: string | null
+          order_id: string
+          quantity?: string | null
           service: string
           status?: string
           user_id: string
@@ -68,6 +74,9 @@ export type Database = {
           created_at?: string
           details?: string
           id?: string
+          location?: string | null
+          order_id?: string
+          quantity?: string | null
           service?: string
           status?: string
           user_id?: string

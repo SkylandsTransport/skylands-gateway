@@ -1,12 +1,11 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, LogIn, Phone, UserPlus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { z } from "zod";
-
-const ADMIN_EMAIL = "delarey.skylands@gmail.com";
+import { ADMIN_EMAIL, clearPendingQuote, readPendingQuote } from "@/lib/orders";
 
 const emailSchema = z.string().trim().email("Enter a valid email address").max(255);
 const phoneSchema = z
@@ -39,10 +38,44 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
   const [needsPhoneCompletion, setNeedsPhoneCompletion] = useState(false);
   const [pendingUserId, setPendingUserId] = useState<string | null>(null);
-  const [pendingRedirect, setPendingRedirect] = useState("/");
+  const [searchParams] = useSearchParams();
+  const requestedRedirect = searchParams.get("redirect") || "/";
+  const authMessage = searchParams.get("message");
+  const [pendingRedirect, setPendingRedirect] = useState(requestedRedirect);
   const navigate = useNavigate();
   const { toast } = useToast();
   const { refreshProfile } = useAuth();
+
+  const completePendingQuote = async (userId: string) => {
+    const pendingQuote = readPendingQuote();
+    if (!pendingQuote) return;
+
+    const { error } = await supabase.from("quotes").insert({
+      order_id: "",
+      user_id: userId,
+      service: pendingQuote.service,
+      details: pendingQuote.details,
+      quantity: pendingQuote.quantity || undefined,
+      location: pendingQuote.location || undefined,
+    });
+
+    if (error) {
+      toast({ title: "Quote save failed", description: error.message, variant: "destructive" });
+      return;
+    }
+
+    clearPendingQuote();
+    const popup = window.open(pendingQuote.waUrl, "_blank", "noopener,noreferrer");
+    if (!popup) {
+      window.location.href = pendingQuote.waUrl;
+      return;
+    }
+
+    toast({
+      title: "Quote request saved",
+      description: "Your request has been logged and WhatsApp is ready.",
+    });
+  };
 
   const handlePhoneCompletion = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,6 +103,7 @@ const Auth = () => {
     }
 
     await refreshProfile();
+    await completePendingQuote(pendingUserId);
     setLoading(false);
     setNeedsPhoneCompletion(false);
     navigate(pendingRedirect);
@@ -108,7 +142,7 @@ const Auth = () => {
         return;
       }
 
-      const redirectTo = signedInUser.email === ADMIN_EMAIL ? "/admin-portal" : "/";
+      const redirectTo = signedInUser.email === ADMIN_EMAIL ? "/admin-portal" : requestedRedirect;
       const { data: existingProfile, error: profileError } = await supabase
         .from("profiles")
         .select("phone_number")
@@ -132,6 +166,7 @@ const Auth = () => {
       }
 
       await refreshProfile();
+      await completePendingQuote(signedInUser.id);
       setLoading(false);
       navigate(redirectTo);
       return;
@@ -206,10 +241,16 @@ const Auth = () => {
             </h2>
           </div>
 
+          {authMessage && !needsPhoneCompletion && (
+            <div className="mb-6 rounded-xl border border-accent/30 bg-accent/10 px-4 py-3 text-sm text-foreground">
+              {authMessage}
+            </div>
+          )}
+
           {needsPhoneCompletion ? (
             <form onSubmit={handlePhoneCompletion} className="space-y-5">
               <p className="text-sm text-muted-foreground">
-                Add your phone number to continue to your dashboard.
+                Add your phone number to continue and finish your request.
               </p>
               <div>
                 <label className="block text-sm font-medium text-muted-foreground mb-2">Phone Number</label>

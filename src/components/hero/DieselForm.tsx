@@ -4,6 +4,8 @@ import { Fuel, ArrowRight, ArrowLeft } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import QuoteModal from "@/components/QuoteModal";
+import { useNavigate } from "react-router-dom";
+import { writePendingQuote } from "@/lib/orders";
 
 const PHONE = "27686347810";
 
@@ -37,6 +39,7 @@ interface DieselFormProps {
 
 const DieselForm = ({ onBack }: DieselFormProps) => {
   const { user, profile } = useAuth();
+  const navigate = useNavigate();
   const [liters, setLiters] = useState("");
   const [fuelGrade, setFuelGrade] = useState("50ppm Diesel");
   const [deliveryMethod, setDeliveryMethod] = useState("Bulk Tanker");
@@ -73,14 +76,28 @@ const DieselForm = ({ onBack }: DieselFormProps) => {
     const url = getUrl();
     setWaUrl(url);
 
-    // Save to DB if logged in
-    if (user) {
-      await supabase.from("quotes").insert({
-        user_id: user.id,
+    if (!user) {
+      writePendingQuote({
         service: "Diesel",
         details: getDetails(),
+        waUrl: url,
+        quantity: liters || undefined,
+        location: location || undefined,
       });
+      navigate(
+        `/auth?message=${encodeURIComponent("Please sign in to save your request and get your custom quote.")}&redirect=${encodeURIComponent("/dashboard")}`
+      );
+      return;
     }
+
+    await supabase.from("quotes").insert({
+      order_id: "",
+      user_id: user.id,
+      service: "Diesel",
+      details: getDetails(),
+      quantity: liters || undefined,
+      location: location || undefined,
+    });
 
     setShowModal(true);
   };
