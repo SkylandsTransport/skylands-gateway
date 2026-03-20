@@ -5,21 +5,22 @@ export const WHATSAPP_PHONE = "27686347810";
 
 export const REQUEST_STATUSES = [
   "Inquiry Received",
+  "Order Accepted",
   "Processing Order",
   "Order Approved",
-  "Order Accepted",
   "Vehicle Assigned",
   "In Transit",
   "Delivered",
 ] as const;
 
-export const LIVE_ORDER_FLOW = ["Order Approved", "Vehicle Assigned", "In Transit", "Delivered"] as const;
+export const LIVE_ORDER_FLOW = ["Processing Order", "Vehicle Assigned", "In Transit", "Delivered"] as const;
 
 export const ACTIVE_ORDER_STATUSES = new Set<string>([
   "Approved",
   "Accepted",
   "Order Approved",
   "Order Accepted",
+  "Processing Order",
   ...LIVE_ORDER_FLOW,
 ]);
 
@@ -110,7 +111,7 @@ export const buildWhatsAppQuoteUrl = (
 };
 
 export const normalizeLiveStatus = (status: string) =>
-  ["Approved", "Accepted", "Order Accepted"].includes(status) ? "Order Approved" : status;
+  ["Approved", "Accepted", "Order Accepted", "Order Approved"].includes(status) ? "Processing Order" : status;
 
 export const buildManualOrderDetails = ({
   service,
