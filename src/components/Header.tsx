@@ -1,9 +1,13 @@
 import { useState, useEffect } from "react";
-import { Menu, X } from "lucide-react";
+import { Menu, X, User, LogOut } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -12,6 +16,11 @@ const Header = () => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/");
+  };
 
   return (
     <header
@@ -61,12 +70,34 @@ const Header = () => {
             >
               Contact
             </a>
-            <a
-              href="#contact"
-              className="btn-gold text-sm py-3 px-6"
-            >
-              Get Quote
-            </a>
+
+            {user ? (
+              <div className="flex items-center gap-4">
+                <button
+                  onClick={() => navigate("/profile")}
+                  className="flex items-center gap-2 text-gold hover:text-gold-light transition-colors duration-300 font-medium"
+                >
+                  <div className="w-9 h-9 rounded-xl bg-gold/10 border border-gold/30 flex items-center justify-center hover:bg-gold/20 transition-colors">
+                    <User className="w-4 h-4 text-gold" />
+                  </div>
+                  Profile
+                </button>
+                <button
+                  onClick={handleSignOut}
+                  className="text-white/50 hover:text-white transition-colors duration-300"
+                  title="Sign out"
+                >
+                  <LogOut className="w-4 h-4" />
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => navigate("/auth")}
+                className="btn-gold text-sm py-3 px-6"
+              >
+                Sign In
+              </button>
+            )}
           </nav>
 
           {/* Mobile Menu Button */}
@@ -100,12 +131,30 @@ const Header = () => {
               >
                 Contact
               </a>
-              <a
-                href="#contact"
-                className="btn-gold text-center py-4 mt-2"
-              >
-                Get Quote
-              </a>
+
+              {user ? (
+                <>
+                  <button
+                    onClick={() => { navigate("/profile"); setIsMobileMenuOpen(false); }}
+                    className="text-gold hover:text-gold-light transition-colors duration-300 font-medium py-2 text-left flex items-center gap-2"
+                  >
+                    <User className="w-4 h-4" /> My Profile
+                  </button>
+                  <button
+                    onClick={() => { handleSignOut(); setIsMobileMenuOpen(false); }}
+                    className="text-white/50 hover:text-white transition-colors duration-300 font-medium py-2 text-left flex items-center gap-2"
+                  >
+                    <LogOut className="w-4 h-4" /> Sign Out
+                  </button>
+                </>
+              ) : (
+                <button
+                  onClick={() => { navigate("/auth"); setIsMobileMenuOpen(false); }}
+                  className="btn-gold text-center py-4 mt-2"
+                >
+                  Sign In
+                </button>
+              )}
             </div>
           </nav>
         )}
