@@ -101,7 +101,7 @@ const Dashboard = () => {
           </button>
           <div className="flex items-center gap-3 mb-8">
             <ClipboardList className="w-7 h-7 text-gold" />
-            <h1 className="text-2xl lg:text-3xl font-bold text-foreground">My Requests</h1>
+            <h1 className="text-2xl lg:text-3xl font-bold text-foreground">My Orders</h1>
           </div>
 
           {fetching ? (
