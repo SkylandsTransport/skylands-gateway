@@ -164,9 +164,7 @@ const Footer = () => {
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             {/* Logo */}
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-gold flex items-center justify-center">
-                <span className="text-navy-dark font-bold text-lg">S</span>
-              </div>
+              <img src={skylandsLogo} alt="Skylands Transport" className="w-10 h-10 rounded-xl object-cover" />
               <div>
                 <span className="text-gradient-gold font-bold text-xl tracking-tight">
                   Skylands

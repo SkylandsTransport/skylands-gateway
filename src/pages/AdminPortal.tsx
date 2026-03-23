@@ -486,9 +486,7 @@ const AdminPortal = () => {
               </button>
               <div className="h-6 w-px bg-gold/20" />
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-gradient-gold flex items-center justify-center">
-                  <span className="text-navy-dark font-bold text-sm">S</span>
-                </div>
+                <img src={skylandsLogo} alt="Skylands Transport" className="w-8 h-8 rounded-lg object-cover" />
                 <div>
                   <h1 className="text-lg font-bold text-white">
                     Admin <span className="text-gold">Portal</span>
