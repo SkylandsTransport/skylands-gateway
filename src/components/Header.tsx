@@ -92,7 +92,7 @@ const Header = () => {
                   className="flex items-center gap-2 text-white/70 hover:text-gold transition-colors duration-300 font-medium"
                 >
                   <ClipboardList className="w-4 h-4" />
-                  My Requests
+                  My Orders
                 </button>
                 <button
                   onClick={() => navigate("/profile")}
