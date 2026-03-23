@@ -111,8 +111,8 @@ const Dashboard = () => {
           ) : quotes.length === 0 ? (
             <div className="glass-card p-12 text-center border border-gold/10">
               <ClipboardList className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-              <p className="text-foreground font-semibold text-lg mb-2">No requests yet</p>
-              <p className="text-muted-foreground text-sm mb-6">Submit a diesel or transport quote from the home page to get started.</p>
+              <p className="text-foreground font-semibold text-lg mb-2">No orders yet</p>
+              <p className="text-muted-foreground text-sm mb-6">Submit a diesel or transport order from the home page to get started.</p>
               <button onClick={() => navigate("/")} className="btn-gold text-sm py-3 px-6">
                 Get a Quote
               </button>
