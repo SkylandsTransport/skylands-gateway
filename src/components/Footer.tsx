@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Phone, Mail, MapPin, Send, ArrowRight } from "lucide-react";
+import skylandsLogo from "@/assets/skylands-logo.jpg";
 
 const Footer = () => {
   const [formData, setFormData] = useState({
