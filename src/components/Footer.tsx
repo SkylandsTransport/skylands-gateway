@@ -111,7 +111,7 @@ const Footer = () => {
                       name="phone"
                       value={formData.phone}
                       onChange={handleChange}
-                      placeholder="+1 (555) 000-0000"
+                      placeholder="+27 82 123 4567 or 082 123 4567"
                       className="input-premium"
                     />
                   </div>
