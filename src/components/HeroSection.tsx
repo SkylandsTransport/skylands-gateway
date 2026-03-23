@@ -111,12 +111,19 @@ const HeroSection = ({ onViewChange, maintenanceFlags }: HeroSectionProps) => {
                 className={`relative flex-1 flex items-center justify-center cursor-pointer group overflow-hidden focus-visible:outline-none ${maintenanceFlags?.diesel_maintenance ? "opacity-60 cursor-not-allowed" : ""}`}
                 style={{ minHeight: "50vh" }}
               >
-                {/* Branded tanker photo */}
-                <div className="absolute inset-0 bg-navy-dark" />
+                {/* Branded tanker photo with seamless blend */}
+                <div className="absolute inset-0" style={{ backgroundColor: '#0A1128' }} />
                 <img
                   src={heroDiesel}
                   alt="Skylands Transport branded diesel fuel tanker"
                   className="absolute inset-0 w-full h-full object-contain transition-transform duration-700 ease-out will-change-transform group-hover:scale-[1.06]"
+                />
+                {/* Radial blend: image fades into navy at edges */}
+                <div
+                  className="absolute inset-0 pointer-events-none"
+                  style={{
+                    background: `radial-gradient(ellipse 70% 60% at center, transparent 30%, #0A1128 85%)`,
+                  }}
                 />
 
                 {/* Navy + gold colour-grade + vignette */}
@@ -124,8 +131,10 @@ const HeroSection = ({ onViewChange, maintenanceFlags }: HeroSectionProps) => {
                   className={`absolute inset-0 transition-all duration-600 ease-out ${vignette}`}
                   style={{
                     background: `
-                      linear-gradient(to top,   hsl(220 60% 6% / 0.92) 0%, transparent 50%),
-                      linear-gradient(to right,  hsl(220 60% 6% / 0.3) 0%, transparent 100%),
+                      linear-gradient(to top,   #0A1128 0%, transparent 40%),
+                      linear-gradient(to bottom, #0A1128 0%, transparent 40%),
+                      linear-gradient(to right,  #0A1128cc 0%, transparent 50%),
+                      linear-gradient(to left,   #0A1128cc 0%, transparent 50%),
                       linear-gradient(180deg,    hsl(43 80% 55% / 0.07) 0%, transparent 35%)
                     `,
                     opacity: hovered === "right" ? 1 : hovered === "left" ? 0.5 : 0.78,
@@ -177,21 +186,30 @@ const HeroSection = ({ onViewChange, maintenanceFlags }: HeroSectionProps) => {
                 className={`relative flex-1 flex items-center justify-center cursor-pointer group overflow-hidden focus-visible:outline-none ${maintenanceFlags?.logistics_maintenance ? "opacity-60 cursor-not-allowed" : ""}`}
                 style={{ minHeight: "50vh" }}
               >
-                {/* Branded logistics truck photo */}
-                <div className="absolute inset-0 bg-navy-dark" />
+                {/* Branded logistics truck photo with seamless blend */}
+                <div className="absolute inset-0" style={{ backgroundColor: '#0A1128' }} />
                 <img
                   src={heroTransport}
                   alt="Skylands Transport branded logistics truck"
                   className="absolute inset-0 w-full h-full object-contain transition-transform duration-700 ease-out will-change-transform group-hover:scale-[1.06]"
+                />
+                {/* Radial blend: image fades into navy at edges */}
+                <div
+                  className="absolute inset-0 pointer-events-none"
+                  style={{
+                    background: `radial-gradient(ellipse 70% 60% at center, transparent 30%, #0A1128 85%)`,
+                  }}
                 />
 
                 <div
                   className={`absolute inset-0 transition-all duration-600 ease-out ${vignette}`}
                   style={{
                     background: `
-                      linear-gradient(to top,  hsl(220 60% 6% / 0.92) 0%, transparent 50%),
-                      linear-gradient(to left, hsl(220 60% 6% / 0.3) 0%, transparent 100%),
-                      linear-gradient(180deg,  hsl(43 80% 55% / 0.05) 0%, transparent 35%)
+                      linear-gradient(to top,   #0A1128 0%, transparent 40%),
+                      linear-gradient(to bottom, #0A1128 0%, transparent 40%),
+                      linear-gradient(to left,   #0A1128cc 0%, transparent 50%),
+                      linear-gradient(to right,  #0A1128cc 0%, transparent 50%),
+                      linear-gradient(180deg,    hsl(43 80% 55% / 0.05) 0%, transparent 35%)
                     `,
                     opacity: hovered === "left" ? 1 : hovered === "right" ? 0.5 : 0.78,
                   }}
@@ -235,15 +253,15 @@ const HeroSection = ({ onViewChange, maintenanceFlags }: HeroSectionProps) => {
             className="min-h-[calc(100vh-5rem)] flex items-center justify-center relative"
           >
             {/* Branded tanker background — subtly blurred */}
-            <div className="absolute inset-0 bg-navy-dark" />
+            <div className="absolute inset-0" style={{ backgroundColor: '#0A1128' }} />
             <img
               src={heroDiesel}
               alt=""
               className="absolute inset-0 w-full h-full object-contain scale-105"
               style={{ filter: "blur(4px)" }}
             />
-            {/* Translucent navy overlay */}
-            <div className={`absolute inset-0 bg-navy-dark/70 ${vignette}`} />
+            <div className="absolute inset-0 pointer-events-none" style={{ background: `radial-gradient(ellipse 70% 60% at center, transparent 30%, #0A1128 85%)` }} />
+            <div className={`absolute inset-0 ${vignette}`} style={{ backgroundColor: 'hsl(220 65% 6% / 0.70)' }} />
 
             <motion.div {...formReveal} className="relative z-10 w-full py-10">
               <DieselForm onBack={() => changeView("main")} />
@@ -260,15 +278,15 @@ const HeroSection = ({ onViewChange, maintenanceFlags }: HeroSectionProps) => {
             className="min-h-[calc(100vh-5rem)] flex items-center justify-center relative"
           >
             {/* Branded truck background — subtly blurred */}
-            <div className="absolute inset-0 bg-navy-dark" />
+            <div className="absolute inset-0" style={{ backgroundColor: '#0A1128' }} />
             <img
               src={heroTransport}
               alt=""
               className="absolute inset-0 w-full h-full object-contain scale-105"
               style={{ filter: "blur(4px)" }}
             />
-            <div className={`absolute inset-0 bg-navy-dark/70 ${vignette}`} />
-            <div className={`absolute inset-0 bg-navy-dark/92 ${vignette}`} />
+            <div className="absolute inset-0 pointer-events-none" style={{ background: `radial-gradient(ellipse 70% 60% at center, transparent 30%, #0A1128 85%)` }} />
+            <div className={`absolute inset-0 ${vignette}`} style={{ backgroundColor: 'hsl(220 65% 6% / 0.85)' }} />
 
             <motion.div {...formReveal} className="relative z-10 w-full py-10">
               <TransportForm onBack={() => changeView("main")} />
