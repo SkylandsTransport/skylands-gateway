@@ -112,10 +112,11 @@ const HeroSection = ({ onViewChange, maintenanceFlags }: HeroSectionProps) => {
                 style={{ minHeight: "50vh" }}
               >
                 {/* Branded tanker photo */}
+                <div className="absolute inset-0 bg-navy-dark" />
                 <img
                   src={heroDiesel}
                   alt="Skylands Transport branded diesel fuel tanker"
-                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out will-change-transform group-hover:scale-[1.06]"
+                  className="absolute inset-0 w-full h-full object-contain transition-transform duration-700 ease-out will-change-transform group-hover:scale-[1.06]"
                 />
 
                 {/* Navy + gold colour-grade + vignette */}
@@ -177,10 +178,11 @@ const HeroSection = ({ onViewChange, maintenanceFlags }: HeroSectionProps) => {
                 style={{ minHeight: "50vh" }}
               >
                 {/* Branded logistics truck photo */}
+                <div className="absolute inset-0 bg-navy-dark" />
                 <img
                   src={heroTransport}
                   alt="Skylands Transport branded logistics truck"
-                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out will-change-transform group-hover:scale-[1.06]"
+                  className="absolute inset-0 w-full h-full object-contain transition-transform duration-700 ease-out will-change-transform group-hover:scale-[1.06]"
                 />
 
                 <div
@@ -233,10 +235,11 @@ const HeroSection = ({ onViewChange, maintenanceFlags }: HeroSectionProps) => {
             className="min-h-[calc(100vh-5rem)] flex items-center justify-center relative"
           >
             {/* Branded tanker background — subtly blurred */}
+            <div className="absolute inset-0 bg-navy-dark" />
             <img
               src={heroDiesel}
               alt=""
-              className="absolute inset-0 w-full h-full object-cover scale-105"
+              className="absolute inset-0 w-full h-full object-contain scale-105"
               style={{ filter: "blur(4px)" }}
             />
             {/* Translucent navy overlay */}
@@ -257,10 +260,11 @@ const HeroSection = ({ onViewChange, maintenanceFlags }: HeroSectionProps) => {
             className="min-h-[calc(100vh-5rem)] flex items-center justify-center relative"
           >
             {/* Branded truck background — subtly blurred */}
+            <div className="absolute inset-0 bg-navy-dark" />
             <img
               src={heroTransport}
               alt=""
-              className="absolute inset-0 w-full h-full object-cover scale-105"
+              className="absolute inset-0 w-full h-full object-contain scale-105"
               style={{ filter: "blur(4px)" }}
             />
             <div className={`absolute inset-0 bg-navy-dark/70 ${vignette}`} />
