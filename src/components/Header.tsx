@@ -36,10 +36,12 @@ const Header = () => {
           {/* Logo */}
           <a href="/" className="flex items-center gap-3 group">
             <div className="relative">
-              <div className="w-10 h-10 rounded-xl bg-gradient-gold flex items-center justify-center">
-                <span className="text-navy-dark font-bold text-lg">S</span>
-              </div>
-              <div className="absolute inset-0 w-10 h-10 rounded-xl bg-gradient-gold opacity-50 blur-md group-hover:opacity-75 transition-opacity" />
+              <img
+                src={skylandsLogo}
+                alt="Skylands Transport logo"
+                className="w-10 h-10 rounded-xl object-cover"
+              />
+              <div className="absolute inset-0 w-10 h-10 rounded-xl bg-gradient-gold opacity-0 group-hover:opacity-30 blur-md transition-opacity" />
             </div>
             <div>
               <span className="text-gradient-gold font-bold text-xl tracking-tight">

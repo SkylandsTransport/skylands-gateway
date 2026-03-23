@@ -11,9 +11,11 @@ const profileSchema = z.object({
   phoneNumber: z
     .string()
     .trim()
-    .min(7, "Phone number is required")
-    .max(20, "Phone number is too long")
-    .regex(/^[+\d][\d\s()-]{6,19}$/, "Enter a valid phone number"),
+    .transform((v) => v.replace(/[\s()-]/g, ""))
+    .refine(
+      (v) => /^(?:0\d{9}|\+27\d{9})$/.test(v),
+      "Enter a valid SA number: 0XX XXX XXXX or +27XX XXX XXXX"
+    ),
   defaultAddress: z.string().trim().min(5, "Enter your delivery address").max(200),
 });
 

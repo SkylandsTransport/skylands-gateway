@@ -11,9 +11,13 @@ const emailSchema = z.string().trim().email("Enter a valid email address").max(2
 const phoneSchema = z
   .string()
   .trim()
-  .min(7, "Phone number is required")
-  .max(20, "Phone number is too long")
-  .regex(/^[+\d][\d\s()-]{6,19}$/, "Enter a valid phone number");
+  .min(10, "Enter a valid SA phone number (e.g. 082 123 4567)")
+  .max(16, "Phone number is too long")
+  .regex(
+    /^(?:0\d{9}|\+27\d{9})$/,
+    "Enter a valid SA number: 0XX XXX XXXX or +27XX XXX XXXX"
+  )
+  .transform((v) => v.replace(/[\s()-]/g, ""));
 
 const signUpSchema = z.object({
   fullName: z.string().trim().min(2, "Enter your full name").max(100),
