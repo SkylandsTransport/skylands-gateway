@@ -253,15 +253,15 @@ const HeroSection = ({ onViewChange, maintenanceFlags }: HeroSectionProps) => {
             className="min-h-[calc(100vh-5rem)] flex items-center justify-center relative"
           >
             {/* Branded tanker background — subtly blurred */}
-            <div className="absolute inset-0 bg-navy-dark" />
+            <div className="absolute inset-0" style={{ backgroundColor: '#0A1128' }} />
             <img
               src={heroDiesel}
               alt=""
               className="absolute inset-0 w-full h-full object-contain scale-105"
               style={{ filter: "blur(4px)" }}
             />
-            {/* Translucent navy overlay */}
-            <div className={`absolute inset-0 bg-navy-dark/70 ${vignette}`} />
+            <div className="absolute inset-0 pointer-events-none" style={{ background: `radial-gradient(ellipse 70% 60% at center, transparent 30%, #0A1128 85%)` }} />
+            <div className={`absolute inset-0 ${vignette}`} style={{ backgroundColor: 'hsl(220 65% 6% / 0.70)' }} />
 
             <motion.div {...formReveal} className="relative z-10 w-full py-10">
               <DieselForm onBack={() => changeView("main")} />
