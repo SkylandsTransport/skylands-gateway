@@ -92,7 +92,7 @@ const Header = () => {
                   className="flex items-center gap-2 text-white/70 hover:text-gold transition-colors duration-300 font-medium"
                 >
                   <ClipboardList className="w-4 h-4" />
-                  My Requests
+                  My Orders
                 </button>
                 <button
                   onClick={() => navigate("/profile")}
@@ -171,7 +171,7 @@ const Header = () => {
                     onClick={() => { navigate("/dashboard"); setIsMobileMenuOpen(false); }}
                     className="text-white/70 hover:text-gold transition-colors duration-300 font-medium py-2 text-left flex items-center gap-2"
                   >
-                    <ClipboardList className="w-4 h-4" /> My Requests
+                    <ClipboardList className="w-4 h-4" /> My Orders
                   </button>
                   <button
                     onClick={() => { navigate("/profile"); setIsMobileMenuOpen(false); }}

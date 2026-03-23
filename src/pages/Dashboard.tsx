@@ -101,7 +101,7 @@ const Dashboard = () => {
           </button>
           <div className="flex items-center gap-3 mb-8">
             <ClipboardList className="w-7 h-7 text-gold" />
-            <h1 className="text-2xl lg:text-3xl font-bold text-foreground">My Requests</h1>
+            <h1 className="text-2xl lg:text-3xl font-bold text-foreground">My Orders</h1>
           </div>
 
           {fetching ? (
@@ -111,8 +111,8 @@ const Dashboard = () => {
           ) : quotes.length === 0 ? (
             <div className="glass-card p-12 text-center border border-gold/10">
               <ClipboardList className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-              <p className="text-foreground font-semibold text-lg mb-2">No requests yet</p>
-              <p className="text-muted-foreground text-sm mb-6">Submit a diesel or transport quote from the home page to get started.</p>
+              <p className="text-foreground font-semibold text-lg mb-2">No orders yet</p>
+              <p className="text-muted-foreground text-sm mb-6">Submit a diesel or transport order from the home page to get started.</p>
               <button onClick={() => navigate("/")} className="btn-gold text-sm py-3 px-6">
                 Get a Quote
               </button>
