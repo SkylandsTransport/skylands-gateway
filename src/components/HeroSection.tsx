@@ -186,21 +186,30 @@ const HeroSection = ({ onViewChange, maintenanceFlags }: HeroSectionProps) => {
                 className={`relative flex-1 flex items-center justify-center cursor-pointer group overflow-hidden focus-visible:outline-none ${maintenanceFlags?.logistics_maintenance ? "opacity-60 cursor-not-allowed" : ""}`}
                 style={{ minHeight: "50vh" }}
               >
-                {/* Branded logistics truck photo */}
-                <div className="absolute inset-0 bg-navy-dark" />
+                {/* Branded logistics truck photo with seamless blend */}
+                <div className="absolute inset-0" style={{ backgroundColor: '#0A1128' }} />
                 <img
                   src={heroTransport}
                   alt="Skylands Transport branded logistics truck"
                   className="absolute inset-0 w-full h-full object-contain transition-transform duration-700 ease-out will-change-transform group-hover:scale-[1.06]"
+                />
+                {/* Radial blend: image fades into navy at edges */}
+                <div
+                  className="absolute inset-0 pointer-events-none"
+                  style={{
+                    background: `radial-gradient(ellipse 70% 60% at center, transparent 30%, #0A1128 85%)`,
+                  }}
                 />
 
                 <div
                   className={`absolute inset-0 transition-all duration-600 ease-out ${vignette}`}
                   style={{
                     background: `
-                      linear-gradient(to top,  hsl(220 60% 6% / 0.92) 0%, transparent 50%),
-                      linear-gradient(to left, hsl(220 60% 6% / 0.3) 0%, transparent 100%),
-                      linear-gradient(180deg,  hsl(43 80% 55% / 0.05) 0%, transparent 35%)
+                      linear-gradient(to top,   #0A1128 0%, transparent 40%),
+                      linear-gradient(to bottom, #0A1128 0%, transparent 40%),
+                      linear-gradient(to left,   #0A1128cc 0%, transparent 50%),
+                      linear-gradient(to right,  #0A1128cc 0%, transparent 50%),
+                      linear-gradient(180deg,    hsl(43 80% 55% / 0.05) 0%, transparent 35%)
                     `,
                     opacity: hovered === "left" ? 1 : hovered === "right" ? 0.5 : 0.78,
                   }}
