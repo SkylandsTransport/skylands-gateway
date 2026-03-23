@@ -112,10 +112,11 @@ const HeroSection = ({ onViewChange, maintenanceFlags }: HeroSectionProps) => {
                 style={{ minHeight: "50vh" }}
               >
                 {/* Branded tanker photo */}
+                <div className="absolute inset-0 bg-navy-dark" />
                 <img
                   src={heroDiesel}
                   alt="Skylands Transport branded diesel fuel tanker"
-                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out will-change-transform group-hover:scale-[1.06]"
+                  className="absolute inset-0 w-full h-full object-contain transition-transform duration-700 ease-out will-change-transform group-hover:scale-[1.06]"
                 />
 
                 {/* Navy + gold colour-grade + vignette */}
