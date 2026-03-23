@@ -120,7 +120,7 @@ const Profile = () => {
                 required
                 value={phoneNumber}
                 onChange={(e) => setPhoneNumber(e.target.value)}
-                placeholder="e.g. 068 634 7810"
+                placeholder="e.g. 082 123 4567 or +27 82 123 4567"
                 className="input-premium"
               />
             </div>
