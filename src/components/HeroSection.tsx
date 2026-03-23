@@ -260,10 +260,11 @@ const HeroSection = ({ onViewChange, maintenanceFlags }: HeroSectionProps) => {
             className="min-h-[calc(100vh-5rem)] flex items-center justify-center relative"
           >
             {/* Branded truck background — subtly blurred */}
+            <div className="absolute inset-0 bg-navy-dark" />
             <img
               src={heroTransport}
               alt=""
-              className="absolute inset-0 w-full h-full object-cover scale-105"
+              className="absolute inset-0 w-full h-full object-contain scale-105"
               style={{ filter: "blur(4px)" }}
             />
             <div className={`absolute inset-0 bg-navy-dark/70 ${vignette}`} />
