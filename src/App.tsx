@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
+import ResetPassword from "./pages/ResetPassword";
 import Profile from "./pages/Profile";
 import Dashboard from "./pages/Dashboard";
 import AdminPortal from "./pages/AdminPortal";
@@ -25,6 +26,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/admin-portal" element={<AdminPortal />} />
