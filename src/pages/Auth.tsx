@@ -34,6 +34,7 @@ const loginSchema = z.object({
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
+  const [isForgot, setIsForgot] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
@@ -49,6 +50,31 @@ const Auth = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { refreshProfile } = useAuth();
+
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const parsed = emailSchema.safeParse(email);
+    if (!parsed.success) {
+      toast({ title: "Enter a valid email", variant: "destructive" });
+      return;
+    }
+    setLoading(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(parsed.data, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    setLoading(false);
+    if (error) {
+      toast({ title: "Could not send reset email", description: error.message, variant: "destructive" });
+      return;
+    }
+    toast({
+      title: "Check your email",
+      description: "If an account exists for this email, a password reset link has been sent.",
+    });
+    setIsForgot(false);
+    setIsLogin(true);
+  };
+
 
   const completePendingQuote = async (userId: string) => {
     const pendingQuote = readPendingQuote();
