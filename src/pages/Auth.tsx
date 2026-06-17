@@ -322,6 +322,30 @@ const Auth = () => {
                 {loading ? "Saving..." : "Save & Continue"}
               </button>
             </form>
+          ) : isForgot ? (
+            <form onSubmit={handleForgotPassword} className="space-y-5">
+              <p className="text-sm text-muted-foreground">
+                Enter your account email and we'll send you a link to reset your password.
+              </p>
+              <div>
+                <label className="block text-sm font-medium text-muted-foreground mb-2">Email</label>
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="you@company.co.za"
+                  className="input-premium"
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={loading}
+                className="btn-gold w-full flex items-center justify-center gap-3 text-lg mt-4 disabled:opacity-50"
+              >
+                {loading ? "Sending..." : "Send Reset Link"}
+              </button>
+            </form>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-5">
               {!isLogin && (
@@ -387,6 +411,18 @@ const Auth = () => {
                 />
               </div>
 
+              {isLogin && (
+                <div className="text-right">
+                  <button
+                    type="button"
+                    onClick={() => setIsForgot(true)}
+                    className="text-sm text-gold hover:text-gold-light transition-colors font-medium"
+                  >
+                    Forgot password?
+                  </button>
+                </div>
+              )}
+
               <button
                 type="submit"
                 disabled={loading}
@@ -399,15 +435,30 @@ const Auth = () => {
 
           {!needsPhoneCompletion && (
             <p className="text-center text-muted-foreground text-sm mt-6">
-              {isLogin ? "Don't have an account?" : "Already have an account?"}{" "}
-              <button
-                onClick={() => setIsLogin(!isLogin)}
-                className="text-gold hover:text-gold-light transition-colors font-medium"
-              >
-                {isLogin ? "Sign Up" : "Sign In"}
-              </button>
+              {isForgot ? (
+                <>
+                  Remembered it?{" "}
+                  <button
+                    onClick={() => setIsForgot(false)}
+                    className="text-gold hover:text-gold-light transition-colors font-medium"
+                  >
+                    Back to Sign In
+                  </button>
+                </>
+              ) : (
+                <>
+                  {isLogin ? "Don't have an account?" : "Already have an account?"}{" "}
+                  <button
+                    onClick={() => setIsLogin(!isLogin)}
+                    className="text-gold hover:text-gold-light transition-colors font-medium"
+                  >
+                    {isLogin ? "Sign Up" : "Sign In"}
+                  </button>
+                </>
+              )}
             </p>
           )}
+
         </div>
       </div>
     </section>
