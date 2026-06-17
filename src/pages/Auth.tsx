@@ -273,15 +273,24 @@ const Auth = () => {
           <div className="flex items-center gap-3 mb-8">
             {needsPhoneCompletion ? (
               <Phone className="w-6 h-6 text-gold" />
+            ) : isForgot ? (
+              <LogIn className="w-6 h-6 text-gold" />
             ) : isLogin ? (
               <LogIn className="w-6 h-6 text-gold" />
             ) : (
               <UserPlus className="w-6 h-6 text-gold" />
             )}
             <h2 className="text-2xl font-bold text-foreground">
-              {needsPhoneCompletion ? "Complete Your Profile" : isLogin ? "Welcome Back" : "Create Account"}
+              {needsPhoneCompletion
+                ? "Complete Your Profile"
+                : isForgot
+                ? "Reset Password"
+                : isLogin
+                ? "Welcome Back"
+                : "Create Account"}
             </h2>
           </div>
+
 
           {authMessage && !needsPhoneCompletion && (
             <div className="mb-6 rounded-xl border border-accent/30 bg-accent/10 px-4 py-3 text-sm text-foreground">
