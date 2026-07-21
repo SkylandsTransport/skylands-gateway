@@ -241,7 +241,7 @@ const Auth = () => {
           default_address: parsedSignUp.data.address,
           phone_number: parsedSignUp.data.phoneNumber,
         },
-        emailRedirectTo: window.location.origin,
+        emailRedirectTo: `${window.location.origin}/auth?redirect=${encodeURIComponent(requestedRedirect)}`,
       },
     });
 
