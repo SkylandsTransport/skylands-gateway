@@ -1,0 +1,173 @@
+{
+  "version": 1,
+  "sdk_version": "0.24.0",
+  "path": "/functions/v1/mcp",
+  "auth": {
+    "type": "oauth",
+    "issuer": "https://kbkvrfnnxgfontzmxrjo.supabase.co/auth/v1",
+    "accepted_audiences": [
+      "authenticated"
+    ]
+  },
+  "mcp": {
+    "server": {
+      "name": "skylands-transport-mcp",
+      "version": "0.1.0",
+      "title": "Skylands Transport"
+    },
+    "tools": [
+      {
+        "name": "list_my_orders",
+        "title": "List my orders",
+        "description": "List the signed-in Skylands Transport user's orders (diesel and transport quotes), newest first.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "limit": {
+              "description": "Max number of orders to return (default 20).",
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50
+            },
+            "status": {
+              "description": "Optional status filter, e.g. 'Inquiry Received', 'Order Approved', 'In Transit', 'Delivered'.",
+              "type": "string"
+            }
+          }
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_order",
+        "title": "Get order details",
+        "description": "Look up one Skylands Transport order by its order ID (e.g. #SK-1001). Only returns the order if it belongs to the signed-in user.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "order_id": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The order's public ID, e.g. '#SK-1001' or 'SK-1001'."
+            }
+          },
+          "required": [
+            "order_id"
+          ]
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "create_diesel_quote",
+        "title": "Create a diesel quote",
+        "description": "Create a new diesel fuel quote for the signed-in Skylands Transport user. Returns the newly created order.",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "liters": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "description": "Liters of diesel requested."
+            },
+            "fuel_grade": {
+              "description": "Fuel grade (e.g. '50ppm', '500ppm'). Optional.",
+              "type": "string"
+            },
+            "delivery_location": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Delivery location / address in South Africa."
+            },
+            "note": {
+              "description": "Optional additional note.",
+              "type": "string"
+            }
+          },
+          "required": [
+            "liters",
+            "delivery_location"
+          ]
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "create_transport_quote",
+        "title": "Create a transport quote",
+        "description": "Create a new logistics/transport quote for the signed-in Skylands Transport user. Returns the newly created order.",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "load_detail": {
+              "type": "string",
+              "minLength": 1,
+              "description": "What's being transported, e.g. 'General Cargo', 'Perishables', 'Hazmat'."
+            },
+            "pickup": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Pickup location."
+            },
+            "dropoff": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Drop-off location."
+            },
+            "weight_class": {
+              "description": "Weight class, e.g. 'Under 5 Tons', '5-10 Tons', 'Superlink 30+'.",
+              "type": "string"
+            },
+            "note": {
+              "description": "Optional additional note.",
+              "type": "string"
+            }
+          },
+          "required": [
+            "load_detail",
+            "pickup",
+            "dropoff"
+          ]
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_my_profile",
+        "title": "Get my profile",
+        "description": "Return the signed-in Skylands Transport user's profile (name, phone, default address, email).",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}
